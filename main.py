@@ -68,19 +68,6 @@ class UserPage(webapp.RequestHandler):
 		self.redirect('/user')
 
 
-class UpdateUser(webapp.RequestHandler):
-	def post(self):
-		id = self.request.get('id')
-		app_user = AppUser.get(id)
-		
-		app_user.first_name = self.request.get('first_name')
-		app_user.last_name = self.request.get('last_name')
-		
-		app_user.put()
-		
-		self.redirect('/user')
-
-
 class ProjectPage(webapp.RequestHandler):
 	def get(self):
 		id = self.request.get('id')
