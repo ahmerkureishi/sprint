@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>{{ app_user.first_name }} {{ app_user.last_name }}</title>
+<link type="text/css" rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+	{% if alert %}
+		<div class="alert"><p>{{ alert }}</p></div>
+	{% endif %}
+	<p>Email: {{ app_user.email }}</p>
+	<form action="/user/update?id={{ app_user.key }}" method="post" accept-charset="utf-8">
+		<dl>
+			<dt>First</dt>
+			<dd><input type="text" name="first_name" value="{{ app_user.first_name }}"></dd>
+			<dt>Last</dt>
+			<dd><input type="text" name="last_name" value="{{ app_user.last_name }}"></dd>
+		</dl>
+		<p><input type="submit" value="Update"></p>
+	</form>
+	<p><a href="/">Dashboard</a></p>
+</body>
+</html>

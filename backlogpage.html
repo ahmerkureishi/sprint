@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>{{ backlog.title }}</title>
+<link type="text/css" rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+	<p>{{ backlog.title }}</p>
+	<p>Owner: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</p>
+	<ul>
+		{% for item in items %}
+		<li>{{ item.title }} : 
+			{% if item.sprint %} {{ item.sprint }} {% else %} Not assigned {% endif %} :
+			{{ item.owner.first_name }} {{ item.owner.last_name }} :
+			{{ item.estimate }}</li>
+		{% endfor %}
+	</ul>
+	<form action="/item/new" method="post" accept-charset="utf-8">
+		<dl>
+			<dt>Title</dt>
+			<dd><input type="text" name="title" value="" size="80" maxlength=80></dd>
+			<dt>Description<dt>
+			<dd><textarea name="content" rows="2" cols="70"></textarea></dd>
+			<dt>Owner</dt>
+			<dd><select name="owner">
+				{% for user in users %}
+					<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
+				{% endfor %}
+				</select></dd>
+			<dt>Estimate</dt>
+			<dd><input type="text" name="estimate" value="" size="2" maxlength=2> hours</dd>
+		</dl>
+		<input type="hidden" name="backlog_id" value="{{ backlog.key }}">
+		<input type="hidden" name="path" value="/backlog?id={{ backlog.key }}">
+		<p><input type="submit" value="Add a New Item"></p>
+	</form>
+	<p><a href="/">Dashboard</a></p>
+</body>
+</html>
