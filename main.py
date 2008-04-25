@@ -14,18 +14,37 @@ logging.getLogger().setLevel(logging.DEBUG)
 
 class MainPage(webapp.RequestHandler):
 	def get(self):
+		'''Show the dashboard page.'''
+		# Make sure we have an AppUser session object otherwise send to the user profile to make one
 		user = users.get_current_user()
 		app_user_query = db.GqlQuery("SELECT * FROM AppUser WHERE user = :1", user)
+		app_user = app_user_query.get()
 		if not app_user_query.get():
 			self.redirect('/user')
 		
+		# Get all projects and backlogs for the right nav area
 		projects = Project.all().order('title')
 		backlogs = Backlog.all().order('title')
 		user_list = [user for user in AppUser.all()]
 		url = users.create_logout_url(self.request.uri)
-
+		
+		# Get all the user's items and the associated sprints and projects
+		user_projects = [project for project in projects]
+		for project in user_projects:
+			sprint_query = Sprint.gql("WHERE project = :1 ORDER BY title", project)
+			project.sprints = [sprint for sprint in sprint_query]
+			for sprint in project.sprints:
+				item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND owner = :2 ORDER BY title", sprint, app_user)
+				sprint.items = [item for item in item_query]
+			for sprint in project.sprints:
+				if not sprint.items:
+					project.sprints.remove(sprint)
+		for project in user_projects:
+			if not project.sprints:
+				user_projects.remove(project)
+		
 		template_file_name = 'mainpage.html'
-		template_values = {'projects': projects, 'backlogs': backlogs, 'users': user_list, 'url': url}
+		template_values = {'projects': projects, 'user_projects': user_projects, 'backlogs': backlogs, 'users': user_list, 'url': url}
 
 		path = os.path.join(os.path.dirname(__file__), template_file_name)
 		self.response.out.write(template.render(path, template_values))
@@ -33,6 +52,8 @@ class MainPage(webapp.RequestHandler):
 
 class UserPage(webapp.RequestHandler):
 	def get(self):
+		'''Show the user profile page.'''
+		# Make sure the user has a profile object
 		user = users.get_current_user()
 		app_user_query = db.GqlQuery("SELECT * FROM AppUser WHERE user = :1", user)
 		if not app_user_query.get():
@@ -43,6 +64,7 @@ class UserPage(webapp.RequestHandler):
 		else:
 			app_user = app_user_query.get()
 		
+		# Save a couple other items for the template
 		alert = app_user.alert_message
 		app_user.alert_message = None
 		app_user.put()
@@ -56,6 +78,7 @@ class UserPage(webapp.RequestHandler):
 		self.response.out.write(template.render(path, template_values))
 
 	def post(self):
+		'''Update the AppUser profile.'''
 		id = self.request.get('id')
 		app_user = AppUser.get(id)
 

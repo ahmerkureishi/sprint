@@ -3,17 +3,21 @@
 {% block title %}Sprint - Dashboard{% endblock %}
 
 {% block content %}
-	<h1>Your Open Sprint Items</h1>
-	{% if not sprints %} 
+	<h1>Open Sprint Items</h1>
+	<hr>
+	{% if not user_projects %} 
 		<p>You have not been assigned any items.</p>
 	{% else %}
-		{% for sprint in sprints %}
+		{% for project in user_projects %}
+		<h1>{{ project.title }}</h1>
+			{% for sprint in project.sprints %}
 			<h2>{{ sprint.title }}</h2>
 			<ul>
 				{% for item in sprint.items %}
 				<li>{{ item.title }} : {{ item.content }} : {{ item.estimate }} hours</li>
 				{% endfor %}
 			</ul>
+			{% endfor %}
 		{% endfor %}
 	{% endif %}
 {% endblock %}

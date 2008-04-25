@@ -10,19 +10,33 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 17 times in query history.
+# Used 46 times in query history.
 - kind: Item
   properties:
   - name: backlog
   - name: title
 
-# Used 22 times in query history.
+# Used 118 times in query history.
+- kind: Item
+  properties:
+  - name: owner
+  - name: sprint
+  - name: title
+
+# Used 136 times in query history.
 - kind: Item
   properties:
   - name: sprint
   - name: title
 
 # Used 12 times in query history.
+- kind: Item
+  properties:
+  - name: sprint
+  - name: user
+  - name: title
+
+# Used 55 times in query history.
 - kind: Sprint
   properties:
   - name: project
@@ -34,3 +48,9 @@ indexes:
   - name: project
   - name: start_date
     direction: desc
+
+# Used 6 times in query history.
+- kind: Sprint
+  properties:
+  - name: project
+  - name: title

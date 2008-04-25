@@ -2,63 +2,56 @@
 
 {% block title %}Sprint - Projects: {{ project.title }}{% endblock %}
 
+{% block script %}
+$(document).ready(function(){
+	$('#start_date').datepicker();
+	$('#end_date').datepicker();
+});
+
+{% endblock %}
+
 {% block content %}
-	<p>{{ project.title }}</p>
+	<h1>{{ project.title }}</h1>
+	{% for sprint in project.sprints %}
+	<h2>{{ sprint.title }}</h2>
+	<p>Start Date: {{ sprint.start_date }}<br>
+	End Date: {{ sprint.end_date }}</p>
 	<ul>
-		{% for sprint in project.sprints %}
-		<li>{{ sprint.title }} : {{ sprint.start_date }} : {{ sprint.end_date }}</li>
-			<ul>
-			{% for item in sprint.items %}
-				<li>{{ item.title }} : {{ item.owner.first_name }} {{ item.owner.last_name }} : {{ item.content }} : {{ item.estimate }} hours</li>
-			{% endfor %}
-			</ul>
+	{% for item in sprint.items %}
+		<li>{{ item.title }} : {{ item.owner.first_name }} {{ item.owner.last_name }} : {{ item.content }} : {{ item.estimate }} hours</li>
+	{% endfor %}
+	</ul>
+
 			<form action="/item/new" method="post" accept-charset="utf-8">
-				<dl>
-					<dt>Title</dt>
-					<dd><input type="text" name="title" value="" size="80" maxlength=80></dd>
-					<dt>Description<dt>
-					<dd><textarea name="content" rows="2" cols="70"></textarea></dd>
-					<dt>Owner</dt>
-					<dd><select name="owner">
-						{% for user in users %}
-							<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
-						{% endfor %}
-						</select></dd>
-					<dt>Estimate</dt>
-					<dd><input type="text" name="estimate" value="" size="2" maxlength=2> hours</dd>
-				</dl>
+				<p>Title<br>
+				<input type="text" name="title" value="" size="80" maxlength=80></p>
+				<p>Description<br>
+				<textarea name="content" rows="2" cols="70"></textarea></p>
+				<p>Owner<br>
+				<select name="owner">
+				{% for user in users %}
+					<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
+				{% endfor %}
+				</select></p>
+				<p>Estimate<br>
+				<input type="text" name="estimate" value="" size="2" maxlength=2> hours</p>
 				<input type="hidden" name="sprint_id" value="{{ sprint.key }}">
 				<input type="hidden" name="path" value="/project?id={{ project.key }}">
-				<p><input type="submit" value="Add a New Item"></p>
+				<p class="submit"><input type="submit" value="Add a New Item"></p>
 			</form>
 		{% endfor %}
-	</ul>
+{% endblock %}
+
+{% block nav %}
 	<form name="script_form" action="/sprint/new" method="post" accept-charset="utf-8">
-		<dl>
-			<dt>Title</dt>
-			<dd><input type="text" name="title" value=""></dd>
-			<dt>Start Date</dt>
-			<dd>
-				<SCRIPT LANGUAGE="JavaScript" ID="jscal1">
-					var start_cal = new CalendarPopup("caldiv");
-				</SCRIPT>
-				<input type="text" name="start_date" value="" SIZE=25>
-				<A HREF="#" onClick="start_cal.select(document.script_form.start_date,'start_anchor','MM/dd/yyyy'); return false;" NAME="start_anchor" ID="start_anchor">select</A>
-			</dd>
-			<dt>End Date</dt>
-			<dd>
-				<SCRIPT LANGUAGE="JavaScript" ID="jscal1">
-					var end_cal = new CalendarPopup("caldiv2");
-				</SCRIPT>
-				<input type="text" name="end_date" value="" SIZE=25>
-				<A HREF="#" onClick="end_cal.select(document.script_form.end_date,'end_anchor','MM/dd/yyyy'); return false;" NAME="end_anchor" ID="end_anchor">select</A>
-			</dd>
-		</dl>
+		<p>Title<br>
+		<input type="text" name="title" value=""></p>
+		<p>Start Date<br>
+		<input type="text" id="start_date" name="start_date" value="" SIZE=25></p>
+		<p>End Date<br>
+		<input type="text" id="end_date" name="end_date" value="" SIZE=25></p>
 		<input type="hidden" name="project_id" value="{{ project.key }}">
 		<input type="hidden" name="path" value="/project?id={{ project.key }}">
-		<p><input type="submit" value="Create a New Sprint"></p>
+		<p class="submit"><input type="submit" value="Create a New Sprint"></p>
 	</form>
-	<div id="caldiv" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></div>
-	<div id="caldiv2" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></div>
-	<p><a href="/">Dashboard</a></p>
 {% endblock %}
