@@ -3,33 +3,46 @@
 {% block title %}Sprint - Dashboard{% endblock %}
 
 {% block content %}
+	<h1>Your Open Sprint Items</h1>
+	{% if not sprints %} 
+		<p>You have not been assigned any items.</p>
+	{% else %}
+		{% for sprint in sprints %}
+			<h2>{{ sprint.title }}</h2>
+			<ul>
+				{% for item in sprint.items %}
+				<li>{{ item.title }} : {{ item.content }} : {{ item.estimate }} hours</li>
+				{% endfor %}
+			</ul>
+		{% endfor %}
+	{% endif %}
+{% endblock %}
+
+{% block nav %}
+	<h1 id="projects">Projects</h1>
 	{% for project in projects %}
 		<p><a href="/project?id={{ project.key }}">{{ project.title }}</a></p>
 	{% endfor %}
 	<form action="/project/new" method="post">
-		<dl>
-			<dt>Title</dt> 
-			<dd><input type="text" name="title"></dd>
-		</dl>
-		<div>
-			<input type="submit" value="Create a New Project">
-		</div>
+		<p>Title<br /> 
+		<input type="text" name="title">
+		</p>
+		<p class="submit"><input type="submit" value="Create a New Project"></p>
 	</form>
+	<h1 id="backlogs">Backlogs</h1>
 	{% for backlog in backlogs %}
 		<p><a href="/backlog?id={{ backlog.key }}">{{ backlog.title }}</a> : {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</p>
 	{% endfor %}
 	<form action="/backlog/new" method="post" accept-charset="utf-8">
-		<dl>
-			<dt>Title</dt>
-			<dd><input type="text" name="title" value=""></dd>
-			<dt>Owner</dt>
-			<dd><select name="owner">
-				{% for user in users %}
-					<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
-				{% endfor %}
-				</select></dd>
-		</dl>
-		<p><input type="submit" value="Create a New Backlog"></p>
+		<p>Title<br />
+		<input type="text" name="title" value=""></p>
+		
+		<p>Owner<br />
+		<select name="owner">
+					{% for user in users %}
+						<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
+					{% endfor %}
+		</select></p>
+		<p class="submit"><input type="submit" value="Create a New Backlog"></p>
 	</form>
-	<p><a href="/user">Account</a> | <a href="{{ url }}">Logout</a></p>
 {% endblock %}
