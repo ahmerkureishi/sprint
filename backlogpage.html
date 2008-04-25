@@ -1,10 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-<head>
-<title>{{ backlog.title }}</title>
-<link type="text/css" rel="stylesheet" href="/static/main.css">
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Sprint - Backlogs : {{ backlog.title }}{% endblock %}
+
+{% block content %}
 	<p>{{ backlog.title }}</p>
 	<p>Owner: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</p>
 	<ul>
@@ -35,5 +33,4 @@
 		<p><input type="submit" value="Add a New Item"></p>
 	</form>
 	<p><a href="/">Dashboard</a></p>
-</body>
-</html>
+{% endblock %}

@@ -1,23 +1,29 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-<head>
-<title>{{ app_user.first_name }} {{ app_user.last_name }}</title>
-<link type="text/css" rel="stylesheet" href="/static/main.css">
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}
+	Sprint - Users : 
+	{% if app_user.first_name %} 
+		{{ app_user.first_name }} {{ app_user.last_name }} 
+	{% else %} 
+		{{ app_user.email }} 
+	{% endif %}
+{% endblock %}
+
+{% block content %}
 	{% if alert %}
 		<div class="alert"><p>{{ alert }}</p></div>
 	{% endif %}
-	<p>Email: {{ app_user.email }}</p>
+	<p>Edit {% if app_user.first_name %} {{ app_user.first_name }} {{ app_user.last_name }} {% else %} {{ app_user.email }} {% endif %}
 	<form action="/user/update?id={{ app_user.key }}" method="post" accept-charset="utf-8">
 		<dl>
-			<dt>First</dt>
+			<dt>First Name:</dt>
 			<dd><input type="text" name="first_name" value="{{ app_user.first_name }}"></dd>
-			<dt>Last</dt>
+			<dt>Last Name:</dt>
 			<dd><input type="text" name="last_name" value="{{ app_user.last_name }}"></dd>
+			<dt>Email:</dt>
+			<dd>{{ app_user.email }}</dd>
 		</dl>
 		<p><input type="submit" value="Update"></p>
 	</form>
 	<p><a href="/">Dashboard</a></p>
-</body>
-</html>
+{% endblock %}

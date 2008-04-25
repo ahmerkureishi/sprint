@@ -1,13 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-<head>
-<title>{{ project.title }}</title>
-<link type="text/css" rel="stylesheet" href="/static/main.css">
-<!-- Calendar Popup from http://www.mattkruse.com/javascript/calendarpopup/ -->
-<script src="static/CalendarPopup.js" type="text/javascript" charset="utf-8"></script>
-<script language="JavaScript">document.write(getCalendarStyles());</script>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Sprint - Projects: {{ project.title }}{% endblock %}
+
+{% block content %}
 	<p>{{ project.title }}</p>
 	<ul>
 		{% for sprint in project.sprints %}
@@ -66,5 +61,4 @@
 	<div id="caldiv" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></div>
 	<div id="caldiv2" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></div>
 	<p><a href="/">Dashboard</a></p>
-</body>
-</html>
+{% endblock %}

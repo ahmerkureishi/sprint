@@ -1,10 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-<head>
-<title>Sprint - Dashboard</title>
-<link type="text/css" rel="stylesheet" href="/static/main.css">
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Sprint - Dashboard{% endblock %}
+
+{% block content %}
 	{% for project in projects %}
 		<p><a href="/project?id={{ project.key }}">{{ project.title }}</a></p>
 	{% endfor %}
@@ -34,5 +32,4 @@
 		<p><input type="submit" value="Create a New Backlog"></p>
 	</form>
 	<p><a href="/user">Account</a> | <a href="{{ url }}">Logout</a></p>
-</body>
-</html>
+{% endblock %}
