@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>{% block title %}{% endblock %}</title>
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/reset-fonts-grids/reset-fonts-grids.css">
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.5.1/build/base/base-min.css"> 
+<link type="text/css" rel="stylesheet" href="/static/main.css">
+<link rel="stylesheet" href="/static/ui.datepicker.css" type="text/css" media="screen">
+<script type="text/javascript" src="/static/jquery-1.2.3.min.js"></script>
+<script type="text/javascript" src="/static/ui.datepicker.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("dt label").append(":");
+	});
+{% block script %}{% endblock %}
+</script>
+</head>
+<body>
+	<div id="doc2" class="yui-t5">
+		<div id="hd">
+			{% block header %}
+			<p><a href="/">Dashboard</a> | <a href="/user">Account</a> | <a href="{{ url }}">Logout</a></p>
+			{% endblock %}
+		</div>
+		<div id="bd">
+			<div id="yui-main">
+				<div class="yui-b">{% block content %}{% endblock %}</div>
+			</div>
+			<div class="yui-b">{% block nav %}{% endblock %}</div>
+		</div>
+		<div id="ft">
+			{% block footer %}{% endblock %}
+		</div>
+	</div>
+</body>
+</html>
