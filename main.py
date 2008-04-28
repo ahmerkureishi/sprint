@@ -29,10 +29,38 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext import db
 import wsgiref.handlers
 
-logging.getLogger().setLevel(logging.DEBUG)
+# Set to true if we want to have our webapp print stack traces, etc
+_DEBUG = True
+
+class BaseRequestHandler(webapp.RequestHandler):
+	"""Supplies a common template generation function.
+
+	When you call generate(), we augment the template variables supplied with
+	the current user in the 'user' variable and the current webapp request
+	in the 'request' variable.
+
+	Adapted from tasks.py by Bret Taylor, Google, Inc. under the same license 
+	terms as noted above.
+	"""
+	def generate(self, template_name, template_values={}):
+		values = {
+			'projects': Project.all().order('title'),
+			'backlogs': Backlog.all().order('title'),
+			'users': [user for user in AppUser.all()],
+			'request': self.request,
+			'user': users.GetCurrentUser(),
+			'login_url': users.CreateLoginURL(self.request.uri),
+			'logout_url': users.CreateLogoutURL('http://' + self.request.host + '/'),
+			'debug': self.request.get('deb'),
+			'application_name': 'Sprint',
+		}
+		values.update(template_values)
+		directory = os.path.dirname(__file__)
+		path = os.path.join(directory, os.path.join('templates', template_name))
+		self.response.out.write(template.render(path, values, debug=_DEBUG))
 
 
-class MainPage(webapp.RequestHandler):
+class MainPage(BaseRequestHandler):
 	def get(self):
 		'''Show the dashboard page.'''
 		# Make sure we have an AppUser session object otherwise send to the user profile to make one
@@ -42,14 +70,8 @@ class MainPage(webapp.RequestHandler):
 		if not app_user_query.get():
 			self.redirect('/user')
 		
-		# Get all projects and backlogs for the right nav area
-		projects = Project.all().order('title')
-		backlogs = Backlog.all().order('title')
-		user_list = [user for user in AppUser.all()]
-		url = users.create_logout_url(self.request.uri)
-		
 		# Get all the user's items and the associated sprints and projects
-		user_projects = [project for project in projects]
+		user_projects = [project for project in Project.all().order('title')]
 		for project in user_projects:
 			sprint_query = Sprint.gql("WHERE project = :1 ORDER BY title", project)
 			project.sprints = [sprint for sprint in sprint_query]
@@ -63,14 +85,12 @@ class MainPage(webapp.RequestHandler):
 			if not project.sprints:
 				user_projects.remove(project)
 		
-		template_file_name = 'mainpage.html'
-		template_values = {'projects': projects, 'user_projects': user_projects, 'backlogs': backlogs, 'users': user_list, 'url': url}
-
-		path = os.path.join(os.path.dirname(__file__), template_file_name)
-		self.response.out.write(template.render(path, template_values))
+		self.generate('mainpage.html', {
+			'user_projects': user_projects,
+			})
 
 
-class UserPage(webapp.RequestHandler):
+class UserPage(BaseRequestHandler):
 	def get(self):
 		'''Show the user profile page.'''
 		# Make sure the user has a profile object
@@ -91,11 +111,10 @@ class UserPage(webapp.RequestHandler):
 		app_user.email = user.email()
 		app_user.nickname = user.nickname()
 		
-		template_file_name = 'userpage.html'
-		template_values = {'app_user': app_user, 'alert': alert}
-
-		path = os.path.join(os.path.dirname(__file__), template_file_name)
-		self.response.out.write(template.render(path, template_values))
+		self.generate('userpage.html', {
+			'app_user': app_user,
+			'alert': alert,
+			})
 
 	def post(self):
 		'''Update the AppUser profile.'''
@@ -111,7 +130,7 @@ class UserPage(webapp.RequestHandler):
 		self.redirect('/user')
 
 
-class ProjectPage(webapp.RequestHandler):
+class ProjectPage(BaseRequestHandler):
 	def get(self):
 		id = self.request.get('id')
 		project = Project.get(id)
@@ -123,11 +142,10 @@ class ProjectPage(webapp.RequestHandler):
 		
 		user_list = [user for user in AppUser.all()]
 		
-		template_file_name = 'projectpage.html'
-		template_values = {'project': project, 'users': user_list}
-
-		path = os.path.join(os.path.dirname(__file__), template_file_name)
-		self.response.out.write(template.render(path, template_values))
+		self.generate('projectpage.html', {
+			'project': project, 
+			'users': user_list,
+		})
 
 
 class CreateProject(webapp.RequestHandler):
@@ -164,7 +182,7 @@ class CreateSprint(webapp.RequestHandler):
 		self.redirect(self.request.get('path'))
 
 
-class BacklogPage(webapp.RequestHandler):
+class BacklogPage(BaseRequestHandler):
 	def get(self):
 		id = self.request.get('id')
 		backlog = Backlog.get(id)
@@ -172,8 +190,11 @@ class BacklogPage(webapp.RequestHandler):
 
 		user_list = [user for user in AppUser.all()]
 
-		template_file_name = 'backlogpage.html'
-		template_values = {'backlog': backlog, 'items': items, 'users': user_list}
+		self.generate('backlogpage.html', {
+			'backlog': backlog, 
+			'items': items, 
+			'users': user_list,
+		})
 		
 		path = os.path.join(os.path.dirname(__file__), template_file_name)
 		self.response.out.write(template.render(path, template_values))
@@ -256,6 +277,6 @@ apps_binding.append(('/item/new', HandleItem))
 apps_binding.append(('/user', UserPage))
 apps_binding.append(('/user/update', UserPage))
 
-application = webapp.WSGIApplication(apps_binding, debug=True)
+application = webapp.WSGIApplication(apps_binding, debug=_DEBUG)
 wsgiref.handlers.CGIHandler().run(application)
 

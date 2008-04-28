@@ -22,7 +22,7 @@ indexes:
   - name: owner
   - name: sprint
 
-# Used 2 times in query history.
+# Used 16 times in query history.
 - kind: Item
   properties:
   - name: owner
@@ -48,7 +48,7 @@ indexes:
   - name: user
   - name: title
 
-# Used 10 times in query history.
+# Used 11 times in query history.
 - kind: Sprint
   properties:
   - name: project
@@ -61,7 +61,7 @@ indexes:
   - name: start_date
     direction: desc
 
-# Used 39 times in query history.
+# Used 81 times in query history.
 - kind: Sprint
   properties:
   - name: project
