@@ -36,10 +36,10 @@ class MainPage(webapp.RequestHandler):
 			for sprint in project.sprints:
 				item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND owner = :2 ORDER BY title", sprint, app_user)
 				sprint.items = [item for item in item_query]
-			for sprint in project.sprints:
+			for sprint in project.sprints[:]:
 				if not sprint.items:
 					project.sprints.remove(sprint)
-		for project in user_projects:
+		for project in user_projects[:]:
 			if not project.sprints:
 				user_projects.remove(project)
 		
