@@ -10,36 +10,25 @@
 	<li>{{ item.title }} : 
 		{% if item.sprint %} {{ item.sprint }} {% else %} Not assigned {% endif %} :
 		{{ item.owner.first_name }} {{ item.owner.last_name }} :
-		{{ item.estimate }}</li>
+		{{ item.estimate }}
+		<a href="/item?id={{ item.key }}">edit</a></li>
 	{% endfor %}
 </ul>
 <form action="/item/new" method="post" accept-charset="utf-8">
-	<p>
-		Title<br>
-		<input type="text" name="title" value="" size="80" maxlength="80">
-	</p>
-	<p>
-		Description<br>
-		<textarea name="content" rows="2" cols="70"></textarea>
-	</p>
-	<p>
-		Owner<br>
+	<p>Title<br>
+		<input type="text" name="title" value="" size="80" maxlength="80"></p>
+	<p>Description<br>
+		<textarea name="content" rows="2" cols="70"></textarea></p>
+	<p>Owner<br>
 		<select name="owner">
 			{% for user in users %}
-			<option value="{{ user.key }}">
-				{{ user.first_name }} {{ user.last_name }}
-			</option>
+			<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
 			{% endfor %}
-		</select>
-	</p>
-	<p>
-		Estimate<br>
-		<input type="text" name="estimate" value="" size="2" maxlength="2"> hours
-	</p>
+		</select></p>
+	<p>Estimate<br>
+		<input type="text" name="estimate" value="" size="2" maxlength="2"> hours</p>
 	<input type="hidden" name="backlog_id" value="{{ backlog.key }}">
-	<input type="hidden" name="path" value="/backlog?id={{ backlog.key }}">
-	<p class="submit">
-		<input type="submit" value="Add a New Item">
-	</p>
+	<input type="hidden" name="next" value="/backlog?id={{ backlog.key }}">
+	<p class="submit"><input type="submit" value="Add a New Item"></p>
 </form>
 {% endblock %}

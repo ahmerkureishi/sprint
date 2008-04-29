@@ -62,7 +62,7 @@ class BaseRequestHandler(webapp.RequestHandler):
 
 class MainPage(BaseRequestHandler):
 	def get(self):
-		'''Show the dashboard page.'''
+		'''Displays the dashboard page.'''
 		# Make sure we have an AppUser session object otherwise send to the user profile to make one
 		user = users.get_current_user()
 		app_user_query = db.GqlQuery("SELECT * FROM AppUser WHERE user = :1", user)
@@ -73,7 +73,7 @@ class MainPage(BaseRequestHandler):
 		# Get all the user's items and the associated sprints and projects
 		user_projects = [project for project in Project.all().order('title')]
 		for project in user_projects:
-			sprint_query = Sprint.gql("WHERE project = :1 ORDER BY title", project)
+			sprint_query = db.GqlQuery("SELECT * FROM Sprint WHERE project = :1 ORDER BY start_date ASC", project)
 			project.sprints = [sprint for sprint in sprint_query]
 			for sprint in project.sprints:
 				item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND owner = :2 ORDER BY title", sprint, app_user)
@@ -92,7 +92,7 @@ class MainPage(BaseRequestHandler):
 
 class UserPage(BaseRequestHandler):
 	def get(self):
-		'''Show the user profile page.'''
+		'''Displays the user profile page.'''
 		# Make sure the user has a profile object
 		user = users.get_current_user()
 		app_user_query = db.GqlQuery("SELECT * FROM AppUser WHERE user = :1", user)
@@ -116,8 +116,52 @@ class UserPage(BaseRequestHandler):
 			'alert': alert,
 			})
 
+
+class ProjectPage(BaseRequestHandler):
+	'''Displays the project page.'''
+	def get(self):
+		id = self.request.get('id')
+		project = Project.get(id)
+		sprint_query = db.GqlQuery("SELECT * FROM Sprint WHERE project = :1 ORDER BY start_date ASC", project)
+		project.sprints = [sprint for sprint in sprint_query]
+		for sprint in project.sprints:
+			item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 ORDER BY title", sprint)
+			sprint.items = [item for item in item_query]
+		
+		self.generate('projectpage.html', {
+			'project': project, 
+		})
+
+
+class BacklogPage(BaseRequestHandler):
+	'''Displays the backlog page.'''
+	def get(self):
+		id = self.request.get('id')
+		backlog = Backlog.get(id)
+		items = db.GqlQuery("SELECT * FROM Item WHERE backlog = :1 ORDER BY title", backlog)
+
+		self.generate('backlogpage.html', {
+			'backlog': backlog, 
+			'items': items, 
+		})
+
+
+class ItemPage(BaseRequestHandler):
+	'''Displays the item page.'''
+	def get(self):
+		id = self.request.get('id')
+		item = Item.get(id)
+		next = self.request.get('next')
+
+		self.generate('itempage.html', {
+			'item': item,
+			'next': next,
+		})
+
+
+class UpdateUserAction(BaseRequestHandler):
 	def post(self):
-		'''Update the AppUser profile.'''
+		'''Edits the user profile.'''
 		id = self.request.get('id')
 		app_user = AppUser.get(id)
 
@@ -130,25 +174,7 @@ class UserPage(BaseRequestHandler):
 		self.redirect('/user')
 
 
-class ProjectPage(BaseRequestHandler):
-	def get(self):
-		id = self.request.get('id')
-		project = Project.get(id)
-		sprint_query = db.GqlQuery("SELECT * FROM Sprint WHERE project = :1 ORDER BY start_date ASC", project)
-		project.sprints = [sprint for sprint in sprint_query]
-		for sprint in project.sprints:
-			item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 ORDER BY title", sprint)
-			sprint.items = [item for item in item_query]
-		
-		user_list = [user for user in AppUser.all()]
-		
-		self.generate('projectpage.html', {
-			'project': project, 
-			'users': user_list,
-		})
-
-
-class CreateProject(webapp.RequestHandler):
+class CreateProjectAction(BaseRequestHandler):
 	def post(self):
 		project = Project()
 		project.title = self.request.get('title')
@@ -158,7 +184,7 @@ class CreateProject(webapp.RequestHandler):
 		self.redirect('/')
 
 
-class CreateSprint(webapp.RequestHandler):
+class CreateSprintAction(BaseRequestHandler):
 	def post(self):
 		sprint = Sprint()
 		sprint.title = self.request.get('title')
@@ -179,28 +205,10 @@ class CreateSprint(webapp.RequestHandler):
 		
 		sprint.put()
 		
-		self.redirect(self.request.get('path'))
+		self.redirect(self.request.get('next'))
 
 
-class BacklogPage(BaseRequestHandler):
-	def get(self):
-		id = self.request.get('id')
-		backlog = Backlog.get(id)
-		items = db.GqlQuery("SELECT * FROM Item WHERE backlog = :1 ORDER BY title", backlog)
-
-		user_list = [user for user in AppUser.all()]
-
-		self.generate('backlogpage.html', {
-			'backlog': backlog, 
-			'items': items, 
-			'users': user_list,
-		})
-		
-		path = os.path.join(os.path.dirname(__file__), template_file_name)
-		self.response.out.write(template.render(path, template_values))
-
-
-class CreateBacklog(webapp.RequestHandler):
+class CreateBacklogAction(BaseRequestHandler):
 	def post(self):
 		backlog = Backlog()
 		backlog.title = self.request.get('title')
@@ -211,10 +219,11 @@ class CreateBacklog(webapp.RequestHandler):
 		self.redirect('/')
 
 
-class HandleItem(webapp.RequestHandler):
+class EditItemAction(BaseRequestHandler):
 	def post(self):
-		if self.request.get('id'):
-			item = Item.get(self.request.get('id'))
+		item_key = self.request.get('id')
+		if item_key:
+			item = Item.get(item_key)
 		else:
 			item = Item()
 		item.title = self.request.get('title')
@@ -225,11 +234,22 @@ class HandleItem(webapp.RequestHandler):
 			item.sprint = Sprint.get(self.request.get('sprint_id'))
 		if self.request.get('owner'):
 			item.owner = AppUser.get(self.request.get('owner'))
-		item.estimate = float(self.request.get('estimate'))
+		if self.request.get('estimate'):
+			item.estimate = float(self.request.get('estimate'))
 		
 		item.put()
 		
-		self.redirect(self.request.get('path'))
+		next = self.request.get('next')
+		if next:
+			self.redirect(self.request.get('next'))
+		elif item.backlog:
+			backlog_id = str(item.backlog.key())
+			self.redirect('/backlog?id=' + backlog_id )
+		elif item.sprint:
+			project_id = str(item.sprint.project.key())
+			self.redirect('/project?id=' + project_id )
+		else:
+			self.redirect('/')
 
 
 class AppUser(db.Model):
@@ -268,14 +288,16 @@ class Item(db.Model):
 apps_binding = []
 
 apps_binding.append(('/', MainPage))
-apps_binding.append(('/project', ProjectPage))
-apps_binding.append(('/project/new', CreateProject))
-apps_binding.append(('/sprint/new', CreateSprint))
-apps_binding.append(('/backlog', BacklogPage))
-apps_binding.append(('/backlog/new', CreateBacklog))
-apps_binding.append(('/item/new', HandleItem))
 apps_binding.append(('/user', UserPage))
-apps_binding.append(('/user/update', UserPage))
+apps_binding.append(('/project', ProjectPage))
+apps_binding.append(('/backlog', BacklogPage))
+apps_binding.append(('/item', ItemPage))
+apps_binding.append(('/user/update', UpdateUserAction))
+apps_binding.append(('/project/new', CreateProjectAction))
+apps_binding.append(('/sprint/new', CreateSprintAction))
+apps_binding.append(('/backlog/new', CreateBacklogAction))
+apps_binding.append(('/item/new', EditItemAction))
+apps_binding.append(('/item/update', EditItemAction))
 
 application = webapp.WSGIApplication(apps_binding, debug=_DEBUG)
 wsgiref.handlers.CGIHandler().run(application)

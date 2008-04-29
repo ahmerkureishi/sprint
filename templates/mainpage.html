@@ -11,12 +11,10 @@
 		{% for project in user_projects %}
 		<h1>{{ project.title }}</h1>
 			{% for sprint in project.sprints %}
-			<h2>{{ sprint.title }}</h2>
-			<ul>
+				<h2>{{ sprint.title }}</h2>
 				{% for item in sprint.items %}
-				<li>{{ item.title }} : {{ item.content }} : {{ item.estimate }} hours</li>
+					<div>{{ item.title }} : {{ item.content }} : {{ item.estimate }} hours <a href='/item?id={{ item.key }}&next=/'>edit</a></div>
 				{% endfor %}
-			</ul>
 			{% endfor %}
 		{% endfor %}
 	{% endif %}

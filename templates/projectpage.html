@@ -18,7 +18,8 @@ $(document).ready(function(){
 	End Date: {{ sprint.end_date }}</p>
 	<ul>
 	{% for item in sprint.items %}
-		<li>{{ item.title }} : {{ item.owner.first_name }} {{ item.owner.last_name }} : {{ item.content }} : {{ item.estimate }} hours</li>
+		<li>{{ item.title }} : {{ item.owner.first_name }} {{ item.owner.last_name }} : {{ item.content }} : {{ item.estimate }} hours
+			<a href="/item?id={{ item.key }}">edit</a></li>
 	{% endfor %}
 	</ul>
 
@@ -34,9 +35,9 @@ $(document).ready(function(){
 				{% endfor %}
 				</select></p>
 				<p>Estimate<br>
-				<input type="text" name="estimate" value="" size="2" maxlength=2> hours</p>
+				<input type="text" name="estimate" value="" size="3" maxlength=3> hours</p>
 				<input type="hidden" name="sprint_id" value="{{ sprint.key }}">
-				<input type="hidden" name="path" value="/project?id={{ project.key }}">
+				<input type="hidden" name="next" value="/project?id={{ project.key }}">
 				<p class="submit"><input type="submit" value="Add a New Item"></p>
 			</form>
 		{% endfor %}
@@ -51,7 +52,7 @@ $(document).ready(function(){
 		<p>End Date<br>
 		<input type="text" id="end_date" name="end_date" value="" SIZE=25></p>
 		<input type="hidden" name="project_id" value="{{ project.key }}">
-		<input type="hidden" name="path" value="/project?id={{ project.key }}">
+		<input type="hidden" name="next" value="/project?id={{ project.key }}">
 		<p class="submit"><input type="submit" value="Create a New Sprint"></p>
 	</form>
 {% endblock %}
