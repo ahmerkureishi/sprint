@@ -2,9 +2,31 @@
 
 {% block title %}Sprint - Dashboard{% endblock %}
 
+{% block script %}
+$(document).ready(function(){
+	$('#add_project_form').hide();
+	$('#add_backlog_form').hide();
+	$('#new_project').click(function(){
+		$('#add_project_form').show();
+		$(this).hide();
+	});
+	$('#cancel_add_project').click(function(){
+		$('#add_project_form').hide();
+		$('#new_project').show();
+	});
+	$('#new_backlog').click(function(){
+		$('#add_backlog_form').show();
+		$(this).hide();
+	});
+	$('#cancel_add_backlog').click(function(){
+		$('#add_backlog_form').hide();
+		$('#new_backlog').show();
+	});
+});
+{% endblock %}
+
 {% block content %}
-	<h1>Open Sprint Items</h1>
-	<hr>
+	<h1>Open Sprint Items for {{ user.first_name }} {{ user.last_name }}</h1>
 	{% if not user_projects %} 
 		<p>You have not been assigned any items.</p>
 	{% else %}
@@ -13,7 +35,7 @@
 			{% for sprint in project.sprints %}
 				<h2>{{ sprint.title }}</h2>
 				{% for item in sprint.items %}
-					<div>{{ item.title }} : {{ item.content }} : {{ item.estimate }} hours <a href='/item?id={{ item.key }}&next=/'>edit</a></div>
+					<div>{{ item.title }} (<strong>{{ item.estimate }} hours</strong>) <a href='/item?id={{ item.key }}&next=/'>edit</a></div>
 				{% endfor %}
 			{% endfor %}
 		{% endfor %}
@@ -21,30 +43,32 @@
 {% endblock %}
 
 {% block nav %}
-	<h1 id="projects">Projects</h1>
+	<h1>Projects</h1>
 	{% for project in projects %}
 		<p><a href="/project?id={{ project.key }}">{{ project.title }}</a></p>
 	{% endfor %}
-	<form action="/project/new" method="post">
+	<a href="#" id="new_project">new project</a>
+	<form action="/project/new" method="post" id="add_project_form">
 		<p>Title<br /> 
 		<input type="text" name="title">
 		</p>
-		<p class="submit"><input type="submit" value="Create a New Project"></p>
+		<p class="submit"><input type="submit" value="Create a New Project"> or <a href="#" class="action" id="cancel_add_project">Cancel</a></p>
 	</form>
 	<h1 id="backlogs">Backlogs</h1>
 	{% for backlog in backlogs %}
 		<p><a href="/backlog?id={{ backlog.key }}">{{ backlog.title }}</a> : {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</p>
 	{% endfor %}
-	<form action="/backlog/new" method="post" accept-charset="utf-8">
+	<a href="#" id="new_backlog">new backlog</a>
+	<form action="/backlog/new" method="post" id="add_backlog_form">
 		<p>Title<br />
-		<input type="text" name="title" value=""></p>
+		<input type="text" name="title"></p>
 		
 		<p>Owner<br />
 		<select name="owner">
-					{% for user in users %}
-						<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
-					{% endfor %}
+			{% for user in users %}
+				<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
+			{% endfor %}
 		</select></p>
-		<p class="submit"><input type="submit" value="Create a New Backlog"></p>
+		<p class="submit"><input type="submit" value="Create a New Backlog"> or <a href="#" class="action" id="cancel_add_backlog">Cancel</a></p>
 	</form>
 {% endblock %}

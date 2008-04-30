@@ -44,11 +44,8 @@ class BaseRequestHandler(webapp.RequestHandler):
 	"""
 	def generate(self, template_name, template_values={}):
 		values = {
-			'projects': Project.all().order('title'),
-			'backlogs': Backlog.all().order('title'),
-			'users': [user for user in AppUser.all()],
 			'request': self.request,
-			'user': users.GetCurrentUser(),
+			'user': AppUser.getCurrentUser(),
 			'login_url': users.CreateLoginURL(self.request.uri),
 			'logout_url': users.CreateLogoutURL('http://' + self.request.host + '/'),
 			'debug': self.request.get('deb'),
@@ -70,13 +67,14 @@ class MainPage(BaseRequestHandler):
 		if not app_user_query.get():
 			self.redirect('/user')
 		
-		# Get all the user's items and the associated sprints and projects
+		# Get all the user's items and the associated sprints and projects. This is sort of inefficient
+		# because it gets all projects and sprints then removes the ones that aren't related to user items
 		user_projects = [project for project in Project.all().order('title')]
 		for project in user_projects:
 			sprint_query = db.GqlQuery("SELECT * FROM Sprint WHERE project = :1 ORDER BY start_date ASC", project)
 			project.sprints = [sprint for sprint in sprint_query]
 			for sprint in project.sprints:
-				item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND owner = :2 ORDER BY title", sprint, app_user)
+				item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog = :2 AND owner = :3 ORDER BY title", sprint, None, app_user)
 				sprint.items = [item for item in item_query]
 			for sprint in project.sprints[:]:
 				if not sprint.items:
@@ -87,6 +85,10 @@ class MainPage(BaseRequestHandler):
 		
 		self.generate('mainpage.html', {
 			'user_projects': user_projects,
+			'projects': Project.all().order('title'),
+			'sprints': Sprint.all().order('title'),
+			'backlogs': Backlog.all().order('title'),
+			'users': AppUser.all(),
 			})
 
 
@@ -94,25 +96,18 @@ class UserPage(BaseRequestHandler):
 	def get(self):
 		'''Displays the user profile page.'''
 		# Make sure the user has a profile object
-		user = users.get_current_user()
-		app_user_query = db.GqlQuery("SELECT * FROM AppUser WHERE user = :1", user)
-		if not app_user_query.get():
-			app_user = AppUser()
-			app_user.user = user
-			app_user.put()
-			app_user.alert_message = "Please update your preferences."
-		else:
-			app_user = app_user_query.get()
+		user = AppUser.getCurrentUser()
+		if not user:
+			user = AppUser()
+			user.user = users.GetCurrentUser()
+			user.put()
+			user.alert_message = "Please update your preferences."
 		
-		# Save a couple other items for the template
-		alert = app_user.alert_message
-		app_user.alert_message = None
-		app_user.put()
-		app_user.email = user.email()
-		app_user.nickname = user.nickname()
+		alert = user.alert_message
+		user.alert_message = None
+		user.put()
 		
 		self.generate('userpage.html', {
-			'app_user': app_user,
 			'alert': alert,
 			})
 
@@ -125,11 +120,14 @@ class ProjectPage(BaseRequestHandler):
 		sprint_query = db.GqlQuery("SELECT * FROM Sprint WHERE project = :1 ORDER BY start_date ASC", project)
 		project.sprints = [sprint for sprint in sprint_query]
 		for sprint in project.sprints:
-			item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 ORDER BY title", sprint)
+			item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog = :2 ORDER BY title", sprint, None)
 			sprint.items = [item for item in item_query]
+			backlog_item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog > :2 ORDER BY backlog, title", sprint, None)
+			sprint.backlog_items = [item for item in backlog_item_query]
 		
 		self.generate('projectpage.html', {
 			'project': project, 
+			'users': AppUser.all(),
 		})
 
 
@@ -143,6 +141,8 @@ class BacklogPage(BaseRequestHandler):
 		self.generate('backlogpage.html', {
 			'backlog': backlog, 
 			'items': items, 
+			'users': AppUser.all(),
+			'sprints': Sprint.all().order('title'),
 		})
 
 
@@ -156,6 +156,7 @@ class ItemPage(BaseRequestHandler):
 		self.generate('itempage.html', {
 			'item': item,
 			'next': next,
+			'users': AppUser.all(),
 		})
 
 
@@ -225,17 +226,20 @@ class EditItemAction(BaseRequestHandler):
 		if item_key:
 			item = Item.get(item_key)
 		else:
-			item = Item()
-		item.title = self.request.get('title')
-		item.content = self.request.get('content')
+			item = Item(title = " ")
+		if self.request.get('title'):
+			item.title = self.request.get('title')
 		if self.request.get('backlog_id'):
 			item.backlog = Backlog.get(self.request.get('backlog_id'))
 		if self.request.get('sprint_id'):
 			item.sprint = Sprint.get(self.request.get('sprint_id'))
 		if self.request.get('owner'):
-			item.owner = AppUser.get(self.request.get('owner'))
+			if self.request.get('owner') == "none":
+				item.owner = None
+			else:
+				item.owner = AppUser.get(self.request.get('owner'))
 		if self.request.get('estimate'):
-			item.estimate = float(self.request.get('estimate'))
+			item.estimate = int(self.request.get('estimate'))
 		
 		item.put()
 		
@@ -257,6 +261,12 @@ class AppUser(db.Model):
 	first_name = db.StringProperty()
 	last_name = db.StringProperty()
 	alert_message = db.StringProperty()
+	
+	@staticmethod
+	def getCurrentUser():
+		"""docstring for getCurrent"""
+		query = AppUser.gql("WHERE user = :1", users.GetCurrentUser())
+		return query.get()
 
 
 class Project(db.Model):
@@ -276,29 +286,32 @@ class Backlog(db.Model):
 
 
 class Item(db.Model):
-	title = db.StringProperty()
-	content = db.TextProperty(default=None)
-	backlog = db.ReferenceProperty(Backlog)
-	sprint = db.ReferenceProperty(Sprint)
-	project = db.ReferenceProperty(Project)
-	owner = db.ReferenceProperty(AppUser)
-	estimate = db.FloatProperty(default=0.0)
+	title = db.StringProperty(required=True)
+	backlog = db.ReferenceProperty(Backlog, default=None)
+	sprint = db.ReferenceProperty(Sprint, default=None)
+	project = db.ReferenceProperty(Project, default=None)
+	owner = db.ReferenceProperty(AppUser, default=None)
+	estimate = db.IntegerProperty(default=0)
 
 
-apps_binding = []
+def main():
+	apps_binding = []
 
-apps_binding.append(('/', MainPage))
-apps_binding.append(('/user', UserPage))
-apps_binding.append(('/project', ProjectPage))
-apps_binding.append(('/backlog', BacklogPage))
-apps_binding.append(('/item', ItemPage))
-apps_binding.append(('/user/update', UpdateUserAction))
-apps_binding.append(('/project/new', CreateProjectAction))
-apps_binding.append(('/sprint/new', CreateSprintAction))
-apps_binding.append(('/backlog/new', CreateBacklogAction))
-apps_binding.append(('/item/new', EditItemAction))
-apps_binding.append(('/item/update', EditItemAction))
+	apps_binding.append(('/', MainPage))
+	apps_binding.append(('/user', UserPage))
+	apps_binding.append(('/project', ProjectPage))
+	apps_binding.append(('/backlog', BacklogPage))
+	apps_binding.append(('/item', ItemPage))
+	apps_binding.append(('/user/update', UpdateUserAction))
+	apps_binding.append(('/project/new', CreateProjectAction))
+	apps_binding.append(('/sprint/new', CreateSprintAction))
+	apps_binding.append(('/backlog/new', CreateBacklogAction))
+	apps_binding.append(('/item/new', EditItemAction))
+	apps_binding.append(('/item/update', EditItemAction))
 
-application = webapp.WSGIApplication(apps_binding, debug=_DEBUG)
-wsgiref.handlers.CGIHandler().run(application)
+	application = webapp.WSGIApplication(apps_binding, debug=_DEBUG)
+	wsgiref.handlers.CGIHandler().run(application)
 
+
+if __name__ == '__main__':
+   main()

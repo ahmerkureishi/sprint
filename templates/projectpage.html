@@ -6,41 +6,58 @@
 $(document).ready(function(){
 	$('#start_date').datepicker();
 	$('#end_date').datepicker();
+	
+	$('form.add_item_form').hide();
+	$('.add').click(function(){
+		$(this).siblings('form.add_item_form').show();
+		$(this).hide();
+	});
+	$('.cancel').click(function(){
+		$(this).parent().parent().hide();
+		$(this).parent().parent().siblings('.add').show();
+	});
 });
 
 {% endblock %}
 
 {% block content %}
-	<h1>{{ project.title }}</h1>
-	{% for sprint in project.sprints %}
-	<h2>{{ sprint.title }}</h2>
-	<p>Start Date: {{ sprint.start_date }}<br>
-	End Date: {{ sprint.end_date }}</p>
-	<ul>
-	{% for item in sprint.items %}
-		<li>{{ item.title }} : {{ item.owner.first_name }} {{ item.owner.last_name }} : {{ item.content }} : {{ item.estimate }} hours
-			<a href="/item?id={{ item.key }}">edit</a></li>
+<h1>{{ project.title }}</h1>
+{% for sprint in project.sprints %}
+<h2>{{ sprint.title }}</h2>
+<p>{{ sprint.start_date }} - {{ sprint.end_date }}</p>
+<h3>Sprint Backlog</h3>
+<ul>
+{% for item in sprint.items %}
+	<li><strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong> : {{ item.title }} (<strong>{{ item.estimate }} hours</strong>)
+		<a href="/item?id={{ item.key }}">edit</a></li>
+{% endfor %}
+</ul>
+<div>
+<a href="#" class="add">add a new item</a>
+<form action="/item/new" method="post" accept-charset="utf-8" class="add_item_form">
+	<p>Title<br>
+	<input type="text" name="title" value="" size="70"></p>
+	<p>Owner<br>
+	<select name="owner">
+	{% for user in users %}
+		<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
 	{% endfor %}
-	</ul>
-
-			<form action="/item/new" method="post" accept-charset="utf-8">
-				<p>Title<br>
-				<input type="text" name="title" value="" size="80" maxlength=80></p>
-				<p>Description<br>
-				<textarea name="content" rows="2" cols="70"></textarea></p>
-				<p>Owner<br>
-				<select name="owner">
-				{% for user in users %}
-					<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
-				{% endfor %}
-				</select></p>
-				<p>Estimate<br>
-				<input type="text" name="estimate" value="" size="3" maxlength=3> hours</p>
-				<input type="hidden" name="sprint_id" value="{{ sprint.key }}">
-				<input type="hidden" name="next" value="/project?id={{ project.key }}">
-				<p class="submit"><input type="submit" value="Add a New Item"></p>
-			</form>
-		{% endfor %}
+	</select></p>
+	<p>Estimate<br>
+	<input type="text" name="estimate" value="" size="3" maxlength=3> hours</p>
+	<input type="hidden" name="sprint_id" value="{{ sprint.key }}">
+	<input type="hidden" name="next" value="/project?id={{ project.key }}">
+	<p class="submit"><input type="submit" value="Add a New Item"> or <a href="#" class="cancel action">Cancel</a></p>
+</form>
+</div>
+<h3>Product Backlog Items</h3>
+<ul>
+{% for item in sprint.backlog_items %}
+	<li><strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong> : {{ item.title }} (<strong>{{ item.estimate }} hours</strong>)
+		<a href="/item?id={{ item.key }}">edit</a></li>
+{% endfor %}
+</ul>
+{% endfor %}
 {% endblock %}
 
 {% block nav %}

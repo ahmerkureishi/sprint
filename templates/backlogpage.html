@@ -2,23 +2,58 @@
 
 {% block title %}Sprint - Backlogs : {{ backlog.title }}{% endblock %}
 
+{% block script %}
+$(document).ready(function(){
+	$(".assign > form").hide();
+	$(".assign > span").click(function(){
+		$(this).siblings().show().css("display","inline-block");
+		$(this).hide();
+	});
+	$(".assign > span").hover(function(){
+		$(this).css("color","#00f");
+	},
+	function(){
+		$(this).css({color:"#000"});
+	});
+
+	$('#add_item_form').hide();
+	$('#add').click(function(){
+		$('#add_item_form').show();
+		$(this).hide();
+	});
+	$('#cancel').click(function(){
+		$('#add_item_form').hide();
+		$('#add').show();
+	});
+});
+
+{% endblock %}
+
 {% block content %}
-<p>{{ backlog.title }}</p>
-<p>Owner: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</p>
-<ul>
+<h1>{{ backlog.title }}</h1>
+<p>Backlog Owner: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</p>
 	{% for item in items %}
-	<li>{{ item.title }} : 
-		{% if item.sprint %} {{ item.sprint }} {% else %} Not assigned {% endif %} :
-		{{ item.owner.first_name }} {{ item.owner.last_name }} :
-		{{ item.estimate }}
-		<a href="/item?id={{ item.key }}">edit</a></li>
+	<p><!-- <strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong> : --> 
+	{{ item.title }} : 
+		<span class="assign">
+			<span>{% if item.sprint %} {{ item.sprint.project.title }} - {{ item.sprint.title }} {% else %} Not Assigned to a Sprint {% endif %}</span>
+			<form action="/item/update?id={{ item.key }}" method="post" accept-charset="utf-8">
+				<select name="sprint_id">
+					{% for sprint in sprints %}
+					<option value="{{ sprint.key }}">{{ sprint.project.title }} : {{ sprint.title }}</option>
+					{% endfor %}
+				</select>
+				<input type="submit" value="Update">
+			</form>
+		</span> :
+		(<strong>{{ item.estimate }} hours</strong>)
+		<a href="/item?id={{ item.key }}">edit</a></p>
 	{% endfor %}
-</ul>
-<form action="/item/new" method="post" accept-charset="utf-8">
+<a href="#" id="add">add a new item</a>
+
+<form action="/item/new" method="post" accept-charset="utf-8" id="add_item_form">
 	<p>Title<br>
 		<input type="text" name="title" value="" size="80" maxlength="80"></p>
-	<p>Description<br>
-		<textarea name="content" rows="2" cols="70"></textarea></p>
 	<p>Owner<br>
 		<select name="owner">
 			{% for user in users %}
@@ -26,9 +61,9 @@
 			{% endfor %}
 		</select></p>
 	<p>Estimate<br>
-		<input type="text" name="estimate" value="" size="2" maxlength="2"> hours</p>
+		<input type="text" name="estimate" value="" size="3" maxlength="3"> hours</p>
 	<input type="hidden" name="backlog_id" value="{{ backlog.key }}">
 	<input type="hidden" name="next" value="/backlog?id={{ backlog.key }}">
-	<p class="submit"><input type="submit" value="Add a New Item"></p>
+	<p class="submit"><input type="submit" value="Add a New Item"> or <a href="#" class="action" id="cancel">Cancel</a></p>
 </form>
 {% endblock %}
