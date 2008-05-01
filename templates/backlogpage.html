@@ -37,7 +37,7 @@ $(document).ready(function(){
 	{{ item.title }} : 
 		<span class="assign">
 			<span>{% if item.sprint %} {{ item.sprint.project.title }} - {{ item.sprint.title }} {% else %} Not Assigned to a Sprint {% endif %}</span>
-			<form action="/item/update?id={{ item.key }}" method="post" accept-charset="utf-8">
+			<form action="/item/update?id={{ item.key }}" method="post">
 				<select name="sprint_id">
 					{% for sprint in sprints %}
 					<option value="{{ sprint.key }}">{{ sprint.project.title }} : {{ sprint.title }}</option>
@@ -49,21 +49,21 @@ $(document).ready(function(){
 		(<strong>{{ item.estimate }} hours</strong>)
 		<a href="/item?id={{ item.key }}">edit</a></p>
 	{% endfor %}
-<a href="#" id="add">add a new item</a>
+<a href="#" class="action" id="add">Add a new backlog item</a>
 
-<form action="/item/new" method="post" accept-charset="utf-8" id="add_item_form">
-	<p>Title<br>
-		<input type="text" name="title" value="" size="80" maxlength="80"></p>
-	<p>Owner<br>
+<form action="/item/new" method="post" id="add_item_form">
+	<p><label>Enter a backlog item</label><br>
+		<textarea name="title" rows="2" cols="40"></textarea></p>
+	<p><label>Owner</label><br>
 		<select name="owner">
 			{% for user in users %}
 			<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
 			{% endfor %}
 		</select></p>
-	<p>Estimate<br>
-		<input type="text" name="estimate" value="" size="3" maxlength="3"> hours</p>
+	<p><label>Estimate</label><br>
+		<input type="text" class="text" name="estimate" value="" size=3 maxlength=3> hours</p>
 	<input type="hidden" name="backlog_id" value="{{ backlog.key }}">
 	<input type="hidden" name="next" value="/backlog?id={{ backlog.key }}">
-	<p class="submit"><input type="submit" value="Add a New Item"> or <a href="#" class="action" id="cancel">Cancel</a></p>
+	<p class="submit"><input type="submit" value="Add this item"> or <a href="#" class="action" id="cancel">I'm done adding items</a></p>
 </form>
 {% endblock %}

@@ -1,28 +1,5 @@
-body {
-	background-color: #ccc;
-	font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
-}
-
-h2 {
-	color: gray;
-}
-
 a.action {
 	color: #f00;
-}
-
-div#doc2 {
-	background-color: #fff;
-	height: 100%;
-}
-
-div#hd {
-	background-color: #baffff;
-	height: 40px;
-}
-
-div.yui-b {
-	padding: 10px;
 }
 
 span.sprint_assignment {
@@ -35,5 +12,8 @@ span.sprint_assignment form {
 
 input[type=text] {
 	width: auto;
-	*width: auto;
+}
+
+textarea {
+	height: auto;
 }

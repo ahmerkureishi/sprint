@@ -10,7 +10,7 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 167 times in query history.
+# Unused in query history -- copied from input.
 - kind: Item
   properties:
   - name: backlog
@@ -18,14 +18,22 @@ indexes:
   - name: sprint
   - name: title
 
-# Used 25 times in query history.
+<<<<<<< Updated upstream:index.yaml
+# Unused in query history -- copied from input.
+=======
+# Used once in query history.
+>>>>>>> Stashed changes:index.yaml
 - kind: Item
   properties:
   - name: backlog
   - name: sprint
   - name: title
 
-# Used 53 times in query history.
+<<<<<<< Updated upstream:index.yaml
+# Unused in query history -- copied from input.
+=======
+# Used 5 times in query history.
+>>>>>>> Stashed changes:index.yaml
 - kind: Item
   properties:
   - name: backlog
@@ -50,14 +58,18 @@ indexes:
   - name: owner
   - name: title
 
-# Used 120 times in query history.
+<<<<<<< Updated upstream:index.yaml
+# Unused in query history -- copied from input.
+=======
+# Used once in query history.
+>>>>>>> Stashed changes:index.yaml
 - kind: Item
   properties:
   - name: sprint
   - name: backlog
   - name: title
 
-# Used 8 times in query history.
+# Unused in query history -- copied from input.
 - kind: Item
   properties:
   - name: sprint
@@ -70,7 +82,11 @@ indexes:
   - name: user
   - name: title
 
-# Used 230 times in query history.
+<<<<<<< Updated upstream:index.yaml
+# Unused in query history -- copied from input.
+=======
+# Used 41 times in query history.
+>>>>>>> Stashed changes:index.yaml
 - kind: Sprint
   properties:
   - name: project

@@ -11,15 +11,15 @@
 
 {% block content %}
 	{% if alert %}
-		<div class="alert"><p>{{ alert }}</p></div>
+		<div class="success">{{ alert }}</div>
 	{% endif %}
-	<p>Edit {% if user.first_name %} {{ user.first_name }} {{ user.last_name }} {% else %} {{ user.email }} {% endif %}
+	<h2>Edit {% if user.first_name %} {{ user.first_name }} {{ user.last_name }} {% else %} {{ user.email }} {% endif %}</h2>
 	<form action="/user/update?id={{ user.key }}" method="post" accept-charset="utf-8">
-		<p>First Name<br>
-		<input type="text" name="first_name" value="{{ user.first_name }}"></p>
-		<p>Last Name<br>
-		<input type="text" name="last_name" value="{{ user.last_name }}"></p>
-		<p>Email<br>
+		<p><label>First Name</label><br>
+		<input type="text" class="text" name="first_name" value="{{ user.first_name }}"></p>
+		<p><label>Last Name</label><br>
+		<input type="text" class="text" name="last_name" value="{{ user.last_name }}"></p>
+		<p><label>Email</label><br>
 		{{ user.user.email }}</p>
 		<p class="submit"><input type="submit" value="Update"></p>
 	</form>

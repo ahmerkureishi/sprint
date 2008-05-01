@@ -168,7 +168,7 @@ class UpdateUserAction(BaseRequestHandler):
 
 		app_user.first_name = self.request.get('first_name')
 		app_user.last_name = self.request.get('last_name')
-		app_user.alert_message = "You have successfully updated your account."
+		app_user.alert_message = "You have successfully updated your profile."
 
 		app_user.put()
 

@@ -6,11 +6,11 @@
 <h1>Edit Item</h1>
 <form action="/item/update?id={{ item.key }}" method="post" accept-charset="utf-8">
 	<p>
-		Title<br>
-		<input type="text" name="title" value="{{ item.title }}" size="70">
+		<label for="title">Item title</label><br>
+		<input type="text" class="text" name="title" value="{{ item.title }}" size="70">
 	</p>
 	<p>
-		Owner<br>
+		<label for="owner">Item owner</label><br>
 		<select name="owner">
 			<option value="none">--------</option>
 			{% for user_choice in users %}
@@ -21,8 +21,8 @@
 		</select>
 	</p>
 	<p>
-		Estimate<br>
-		<input type="text" name="estimate" value="{{ item.estimate }}" size="2" maxlength="2"> hours
+		<label for="estimate">Estimate</label><br>
+		<input type="text" class="text" name="estimate" value="{{ item.estimate }}" size=3 maxlength=3> hours
 	</p>
 	{% if next %}
 	<input type="hidden" name="next" value="{{ next }}">
