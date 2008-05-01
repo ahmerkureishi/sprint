@@ -17,3 +17,33 @@ input[type=text] {
 textarea {
 	height: auto;
 }
+
+h1, h2 {
+	font-family: Times, "Times New Roman", Georgia, serif;
+}
+
+table.items td {
+	border-bottom: 1px dotted #e6e6e6;
+}
+
+h1#logo {
+	color: #ccc;
+}
+
+div#top_nav {
+	text-align: right;
+}
+
+table.items td.bullet {
+	width: 1em;
+	text-align: center;
+}
+
+table.items td.estimate {
+	width: 8em;
+	text-align: right;
+}
+
+table.items td.date {
+	width: 3.5em;
+}

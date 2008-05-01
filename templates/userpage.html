@@ -11,6 +11,7 @@
 
 {% block content %}
 	{% if alert %}
+		<hr class="space">
 		<div class="success">{{ alert }}</div>
 	{% endif %}
 	<h2>Edit {% if user.first_name %} {{ user.first_name }} {{ user.last_name }} {% else %} {{ user.email }} {% endif %}</h2>

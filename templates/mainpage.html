@@ -29,49 +29,71 @@ $(document).ready(function(){
 <div class="span-16" id="main">
 	<h1>Open Items for {{ user.first_name }} {{ user.last_name }}</h1>
 	<hr>
+	<form action="/project/new" method="post" id="add_project_form">
+		<legend><span class="large">Add a new project</span></legend>
+		<fieldset>
+		<label for="title">Enter a project title</label><br> 
+		<input type="text" class="text" name="title" size=40 maxsize=40><br>
+		<hr class="space">
+		<hr>
+		<input type="submit" value="Create a New Project"> or <a href="#" class="action" id="cancel_add_project">Cancel</a>
+		</fieldset>
+	</form>
+	<form action="/backlog/new" method="post" id="add_backlog_form">
+		<legend><span class="large">Add a new backlog</span></legend>
+		<fieldset>
+		<label for="title">Enter a backlog title</label><br>
+		<input type="text"  class="text" name="title" size=40 maxsize=40><br>
+		<label>Select the backlog owner</label><br>
+		<select name="owner">
+			{% for user in users %}
+				<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
+			{% endfor %}
+		</select><br>
+		<hr class="space">
+		<hr>
+		<input type="submit" value="Create a New Backlog"> or <a href="#" class="action" id="cancel_add_backlog">Cancel</a>
+		</fieldset>
+	</form>
+	<div id="user_list">
 	{% if not user_projects %} 
 		<p>You have not been assigned any items.</p>
 	{% else %}
 		{% for project in user_projects %}
 		<h2>{{ project.title }}</h2>
 			{% for sprint in project.sprints %}
-				<h3>{{ sprint.title }}</h3>
+				<p><h3 style="display:inline">{{ sprint.title }}</h3>
+					<span class="quiet">  {{ sprint.start_date|date:"F j, Y"}} to {{ sprint.end_date|date:"F j, Y"}}</span></p>
+				<table class="items last">
+				<tbody>
 				{% for item in sprint.items %}
-					<div>{{ item.title }} (<strong>{{ item.estimate }} hours</strong>) <a href='/item?id={{ item.key }}&next=/'>edit</a></div>
+					<tr><td class="bullet">•</td>
+						<td class="title">{{ item.title }}</td>
+						<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
+						<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
+					</tr>
 				{% endfor %}
+				</tbody>
+				</table>
 			{% endfor %}
 		{% endfor %}
 	{% endif %}
+	</div>
 </div>
 <div class="span-8 last" id="nav">
+	<h1>&nbsp;</h1>
+	<hr>
 	<h2>Projects</h2>
 	{% for project in projects %}
-		<p><a href="/project?id={{ project.key }}">{{ project.title }}</a></p>
+		<span class="large"><a href="/project?id={{ project.key }}">{{ project.title }}</a></span><br>
 	{% endfor %}
 	<a href="#" class="action" id="new_project">Add a new project</a>
 	<hr class="space">
-	<form action="/project/new" method="post" id="add_project_form">
-		<p><label>Enter a project title</label><br /> 
-		<input type="text" class="text" name="title" size=40 maxsize=40>
-		</p>
-		<input type="submit" value="Create a New Project"> or <a href="#" class="action" id="cancel_add_project">Cancel</a>
-	</form>
 	<h2>Backlogs</h2>
 	{% for backlog in backlogs %}
-		<p><a href="/backlog?id={{ backlog.key }}">{{ backlog.title }}</a> : {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</p>
+		<span class="large"><a href="/backlog?id={{ backlog.key }}">{{ backlog.title }}</a> 
+			: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</span><br>
 	{% endfor %}
 	<a href="#" class="action" id="new_backlog">Add a new backlog</a>
-	<hr class="space">
-	<form action="/backlog/new" method="post" id="add_backlog_form">
-		<p><label>Enter a backlog title</label><br />
-		<input type="text"  class="text" name="title" size=40 maxsize=40></p>
-		<p><label>Select the backlog owner</label><br />
-		<select name="owner">
-			{% for user in users %}
-				<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
-			{% endfor %}
-		</select></p>
-		<input type="submit" value="Create a New Backlog"> or <a href="#" class="action" id="cancel_add_backlog">Cancel</a>
-	</form>
 </div>
 {% endblock %}

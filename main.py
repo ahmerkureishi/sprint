@@ -238,8 +238,11 @@ class EditItemAction(BaseRequestHandler):
 				item.owner = None
 			else:
 				item.owner = AppUser.get(self.request.get('owner'))
+		previous_estimate = self.request.get('previous_estimate')
 		if self.request.get('estimate'):
 			item.estimate = int(self.request.get('estimate'))
+			if self.request.get('estimate') == previous_estimate:
+				item.last_estimate_date = today()
 		
 		item.put()
 		
@@ -292,6 +295,7 @@ class Item(db.Model):
 	project = db.ReferenceProperty(Project, default=None)
 	owner = db.ReferenceProperty(AppUser, default=None)
 	estimate = db.IntegerProperty(default=0)
+	last_estimate_date = db.DateProperty(auto_now_add=True)
 
 
 def main():

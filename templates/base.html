@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="/static/blueprint/screen.css" type="text/css" media="screen, projection">
 <link rel="stylesheet" href="/static/blueprint/print.css" type="text/css" media="print">    
 <!--[if IE]><link rel="stylesheet" href="/static/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
-<link rel="stylesheet" href="/static/main.css" type="text/css" media="screen">
+<link rel="stylesheet" href="/static/main.css" type="text/css">
 
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
 
@@ -17,18 +17,23 @@
 </head>
 <body>
 	<div class="container">
-		<div class="span-24" id="hd">
-			{% block header %}
-			<p><a href="/">Dashboard</a> | <a href="/user">Profile</a> | <a href="{{ logout_url }}">Logout</a></p>
-			{% endblock %}
+		<div class="span-24 last" id="hd">
+			<div class="span-4">
+				<h1 id="logo">Sprint</h1>
+			</div>
+			<div class="span-20 last" id="top_nav">
+				{% block header %}
+				<p><a href="/">Dashboard</a> | <a href="/user">Profile</a> | <a href="{{ logout_url }}">Logout</a></p>
+				{% endblock %}
+			</div>
 			<hr>
 		</div>
 		{% block content %}{% endblock %}
-		<div class="span-24" id="ft">
+		<div class="span-24 last" id="ft">
 			<hr class="space">
 			<hr>
 			{% block footer %}
-			Created by Todd Webb.
+			Created by <a href="http://toddwebb.wordpress.com">Todd Webb</a>
 			{% endblock %}
 		</div>
 	</div>
