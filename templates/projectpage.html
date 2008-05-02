@@ -52,11 +52,11 @@ $(document).ready(function(){
 		<td class="action"><a href="/item?id={{ item.key }}" class="action">edit</a></td>
 	</tr>
 {% endfor %}
-	<tr><td class="bullet">&nbsp;</td>
-		<td class="title" style="text-align:right">Current Sprint Estimate:</td>
-		<td class="estimate"><strong>{{ sprint.snap.estimate }} hours</strong></td>
-		<td class="date">{{ sprint.snap.date|date:"M j"}}</td>
-		<td class="action">&nbsp;</td>
+	<tr><td class="bullet noborder">&nbsp;</td>
+		<td class="title noborder" style="text-align:right">Current Sprint Estimate:</td>
+		<td class="estimate noborder"><strong>{{ sprint.snap.estimate }} hours</strong></td>
+		<td class="date noborder">{{ sprint.snap.date|date:"M j"}}</td>
+		<td class="action noborder">&nbsp;</td>
 	</tr>
 </tbody>
 </table>

@@ -77,6 +77,11 @@ table.items td {
 	vertical-align: top;
 }
 
+table.items td.noborder {
+	vertical-align: top;
+	border-style: none;
+}
+
 table.items td.bullet {
 	width: 1em;
 	text-align: center;

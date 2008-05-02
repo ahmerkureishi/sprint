@@ -12,5 +12,5 @@ handlers:
   
 - url: /.*
   script: main.py
-  login: required
+  login: admin
 

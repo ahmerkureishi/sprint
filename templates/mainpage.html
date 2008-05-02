@@ -26,7 +26,7 @@ $(document).ready(function(){
 {% endblock %}
 
 {% block content %}
-<div class="span-16" id="main">
+<div class="span-18" id="main">
 	<h1>Open Items for {{ user.first_name }} {{ user.last_name }}</h1>
 	<hr>
 	<form action="/project/new" method="post" id="add_project_form">
@@ -71,6 +71,7 @@ $(document).ready(function(){
 						<td class="title">{{ item.title }}</td>
 						<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
 						<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
+						<td class="action"><a href="/item?id={{ item.key }}&next=/" class="action">edit</a></td>
 					</tr>
 				{% endfor %}
 				</tbody>
@@ -80,7 +81,7 @@ $(document).ready(function(){
 	{% endif %}
 	</div>
 </div>
-<div class="span-8 last" id="nav">
+<div class="span-6 last" id="nav">
 	<h1>&nbsp;</h1>
 	<hr>
 	<h2 class="bottom">Projects</h2>

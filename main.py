@@ -164,6 +164,12 @@ class ItemPage(BaseRequestHandler):
 		})
 
 
+class HelpPage(BaseRequestHandler):
+	'''Displays the help page.'''
+	def get(self):
+		self.generate('helppage.html', {});
+
+
 class UpdateUserAction(BaseRequestHandler):
 	def post(self):
 		'''Edits the user profile.'''
@@ -229,14 +235,17 @@ class EditItemAction(BaseRequestHandler):
 		item_key = self.request.get('id')
 		if item_key:
 			item = Item.get(item_key)
-			new_item_flag = False
+			is_new_item = False
 		else:
 			item = Item(title = " ")
-			new_item_flag = True
+			is_new_item = True
 		if self.request.get('title'):
 			item.title = self.request.get('title')
 		if self.request.get('backlog_id'):
 			item.backlog = Backlog.get(self.request.get('backlog_id'))
+			is_backlog_item = True
+		else:
+			is_backlog_item = False
 		if self.request.get('sprint_id'):
 			item.sprint = Sprint.get(self.request.get('sprint_id'))
 		if self.request.get('owner'):
@@ -246,7 +255,7 @@ class EditItemAction(BaseRequestHandler):
 				item.owner = AppUser.get(self.request.get('owner'))
 		if self.request.get('estimate'):
 			if item.estimate != int(self.request.get('estimate')):
-				if not new_item_flag:
+				if not is_new_item:
 					previous_estimate = item.estimate
 				else:
 					previous_estimate = 0
@@ -254,23 +263,24 @@ class EditItemAction(BaseRequestHandler):
 				today = datetime.date.today()
 				item.last_estimate_date = today
 				item.last_estimate_by = AppUser.getCurrentUser()
-				# Update the Sprint Snapshot or create a new Snapshot if it is a new day
-				query_datetime = datetime.datetime.combine(today,datetime.time().min)
-				snap_query = SprintSnap.gql("WHERE sprint = :1 AND date = :2", item.sprint, query_datetime)
-				snap = snap_query.get()
-				if snap:
-					snap.estimate += (item.estimate - previous_estimate)
-					snap.put()
-				else:
-					previous_snap_query = SprintSnap.gql("WHERE sprint = :1 AND date < :2 ORDER BY date DESC", 
-						item.sprint, query_datetime)
-					previous_snap = previous_snap_query.get()
-					if previous_snap:
-						todays_estimate = previous_snap.estimate + (item.estimate - previous_estimate)
+				if not is_backlog_item:
+					# Update the Sprint Snapshot or create a new Snapshot if it is a new day
+					query_datetime = datetime.datetime.combine(today,datetime.time().min)
+					snap_query = SprintSnap.gql("WHERE sprint = :1 AND date = :2", item.sprint, query_datetime)
+					snap = snap_query.get()
+					if snap:
+						snap.estimate += (item.estimate - previous_estimate)
+						snap.put()
 					else:
-						todays_estimate = item.estimate
-					snap = SprintSnap(sprint=item.sprint, estimate=todays_estimate)
-					snap.put()
+						previous_snap_query = SprintSnap.gql("WHERE sprint = :1 AND date < :2 ORDER BY date DESC", 
+							item.sprint, query_datetime)
+						previous_snap = previous_snap_query.get()
+						if previous_snap:
+							todays_estimate = previous_snap.estimate + (item.estimate - previous_estimate)
+						else:
+							todays_estimate = item.estimate
+						snap = SprintSnap(sprint=item.sprint, estimate=todays_estimate)
+						snap.put()
 		
 		item.put()
 		
@@ -350,6 +360,7 @@ def main():
 	apps_binding.append(('/backlog/new', CreateBacklogAction))
 	apps_binding.append(('/item/new', EditItemAction))
 	apps_binding.append(('/item/update', EditItemAction))
+	apps_binding.append(('/help', HelpPage))
 
 	application = webapp.WSGIApplication(apps_binding, debug=_DEBUG)
 	wsgiref.handlers.CGIHandler().run(application)
