@@ -124,6 +124,10 @@ class ProjectPage(BaseRequestHandler):
 			sprint.items = [item for item in item_query]
 			backlog_item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog > :2 ORDER BY backlog, title", sprint, None)
 			sprint.backlog_items = [item for item in backlog_item_query]
+			today = datetime.date.today()
+			query_datetime = datetime.datetime.combine(today,datetime.time().min)
+			snap_query = db.GqlQuery("SELECT * FROM SprintSnap WHERE sprint = :1 AND date <= :2", sprint, query_datetime)
+			sprint.snap = snap_query.get()
 		
 		self.generate('projectpage.html', {
 			'project': project, 
@@ -225,8 +229,10 @@ class EditItemAction(BaseRequestHandler):
 		item_key = self.request.get('id')
 		if item_key:
 			item = Item.get(item_key)
+			new_item_flag = False
 		else:
 			item = Item(title = " ")
+			new_item_flag = True
 		if self.request.get('title'):
 			item.title = self.request.get('title')
 		if self.request.get('backlog_id'):
@@ -238,12 +244,33 @@ class EditItemAction(BaseRequestHandler):
 				item.owner = None
 			else:
 				item.owner = AppUser.get(self.request.get('owner'))
-		previous_estimate = int(self.request.get('previous_estimate'))
 		if self.request.get('estimate'):
-			item.estimate = int(self.request.get('estimate'))
-			if self.request.get('estimate') != previous_estimate:
-				item.last_estimate_date = datetime.datetime.today().date()
+			if item.estimate != int(self.request.get('estimate')):
+				if not new_item_flag:
+					previous_estimate = item.estimate
+				else:
+					previous_estimate = 0
+				item.estimate = int(self.request.get('estimate'))
+				today = datetime.date.today()
+				item.last_estimate_date = today
 				item.last_estimate_by = AppUser.getCurrentUser()
+				# Update the Sprint Snapshot or create a new Snapshot if it is a new day
+				query_datetime = datetime.datetime.combine(today,datetime.time().min)
+				snap_query = SprintSnap.gql("WHERE sprint = :1 AND date = :2", item.sprint, query_datetime)
+				snap = snap_query.get()
+				if snap:
+					snap.estimate += (item.estimate - previous_estimate)
+					snap.put()
+				else:
+					previous_snap_query = SprintSnap.gql("WHERE sprint = :1 AND date < :2 ORDER BY date DESC", 
+						item.sprint, query_datetime)
+					previous_snap = previous_snap_query.get()
+					if previous_snap:
+						todays_estimate = previous_snap.estimate + (item.estimate - previous_estimate)
+					else:
+						todays_estimate = item.estimate
+					snap = SprintSnap(sprint=item.sprint, estimate=todays_estimate)
+					snap.put()
 		
 		item.put()
 		
@@ -258,6 +285,9 @@ class EditItemAction(BaseRequestHandler):
 			self.redirect('/project?id=' + project_id )
 		else:
 			self.redirect('/')
+
+
+# Need to add a delete item action. This will also need to update the snapshot baseline to remove the 
 
 
 class AppUser(db.Model):
@@ -282,6 +312,12 @@ class Sprint(db.Model):
 	project = db.ReferenceProperty(Project)
 	start_date = db.DateProperty(auto_now_add=True)
 	end_date = db.DateProperty(default=None)
+
+
+class SprintSnap(db.Model):
+	sprint = db.ReferenceProperty(Sprint)
+	date = db.DateProperty(auto_now_add=True)
+	estimate = db.IntegerProperty(default=0)
 
 
 class Backlog(db.Model):
