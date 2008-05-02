@@ -7,20 +7,20 @@ $(document).ready(function(){
 	$('#add_project_form').hide();
 	$('#add_backlog_form').hide();
 	$('#new_project').click(function(){
-		$('#add_project_form').show();
-		$(this).hide();
+		$('#add_project_form').slideDown(500);
+		$(this).slideUp(500);
 	});
 	$('#cancel_add_project').click(function(){
-		$('#add_project_form').hide();
-		$('#new_project').show();
+		$('#add_project_form').slideUp(500);
+		$('#new_project').slideDown(500);
 	});
 	$('#new_backlog').click(function(){
-		$('#add_backlog_form').show();
-		$(this).hide();
+		$('#add_backlog_form').slideDown(500);
+		$(this).slideUp(500);
 	});
 	$('#cancel_add_backlog').click(function(){
-		$('#add_backlog_form').hide();
-		$('#new_backlog').show();
+		$('#add_backlog_form').slideUp(500);
+		$('#new_backlog').slideDown(500);
 	});
 });
 {% endblock %}
@@ -83,16 +83,16 @@ $(document).ready(function(){
 <div class="span-8 last" id="nav">
 	<h1>&nbsp;</h1>
 	<hr>
-	<h2>Projects</h2>
+	<h2 class="bottom">Projects</h2>
 	{% for project in projects %}
-		<span class="large"><a href="/project?id={{ project.key }}">{{ project.title }}</a></span><br>
+		<div><a href="/project?id={{ project.key }}" class="large nav_list">{{ project.title }}</a></div>
 	{% endfor %}
 	<a href="#" class="action" id="new_project">Add a new project</a>
 	<hr class="space">
-	<h2>Backlogs</h2>
+	<h2 class="bottom">Backlogs</h2>
 	{% for backlog in backlogs %}
-		<span class="large"><a href="/backlog?id={{ backlog.key }}">{{ backlog.title }}</a> 
-			: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</span><br>
+		<div><a href="/backlog?id={{ backlog.key }}"  class="large nav_list">{{ backlog.title }}</a> 
+			<span class="quiet">: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</span></div>
 	{% endfor %}
 	<a href="#" class="action" id="new_backlog">Add a new backlog</a>
 </div>

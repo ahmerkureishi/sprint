@@ -6,12 +6,12 @@
 $(document).ready(function(){	
 	$('form.add_item_form').hide();
 	$('.add').click(function(){
-		$(this).siblings('form.add_item_form').show();
-		$(this).hide();
+		$(this).siblings('form.add_item_form').slideDown(500);
+		$(this).slideUp(500);
 	});
 	$('.cancel').click(function(){
-		$(this).parents('form').hide();
-		$(this).parents('form').siblings('.add').show();
+		$(this).parents('form').slideUp(500);
+		$(this).parents('form').siblings('.add').slideDown(500);
 	});
 });
 {% endblock %}
@@ -25,11 +25,11 @@ $(document).ready(function(){
 	<form class="add_item_form" id="sprint_form" action="/sprint/new" method="post">
 		<fieldset>
 		<label for="title">Enter a sprint title</label><br>
-		<input type="text" class="title" name="title" value="" size=40 maxsize=40><br>
+		<input type="text" class="title" name="title" value="" size=10 maxsize=10><span class="quiet small"> (ex: "Sprint 1")</span><br>
 		<label for="start_date">Start Date</label><br>
-		<input type="text" class="text" id="start_date" name="start_date" value=""><br>
+		<input type="text" class="text" id="start_date" name="start_date" value="" size=10 maxsize=10><span class="quiet small"> (MM/DD/YYYY)</span><br>
 		<label for="end_date">End Date</label><br>
-		<input type="text" class="text" id="end_date" name="end_date" value=""><br>
+		<input type="text" class="text" id="end_date" name="end_date" value="" size=10 maxsize=10><span class="quiet small"> (MM/DD/YYYY)</span><br>
 		<hr class="space">
 		<hr>
 		<input type="hidden" name="project_id" value="{{ project.key }}">
@@ -40,21 +40,26 @@ $(document).ready(function(){
 </div>
 <hr class="space">
 {% for sprint in project.sprints %}
-<p><h2 style="display:inline">{{ sprint.title }}</h2>
+<p><h3 style="display:inline">{{ sprint.title }}</h3>
 	<span class="quiet">  {{ sprint.start_date|date:"F j, Y"}} to {{ sprint.end_date|date:"F j, Y"}}</span></p>
-<h3>Sprint Backlog</h3>
-<ul>
+<table class="items last">
+<tbody>
 {% for item in sprint.items %}
-	<li><strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong> : {{ item.title }} (<strong>{{ item.estimate }} hours</strong>)
-		<a href="/item?id={{ item.key }}">edit</a></li>
+	<tr><td class="bullet">•</td>
+		<td class="title"><strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong>: {{ item.title }}</td>
+		<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
+		<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
+		<td class="action"><a href="/item?id={{ item.key }}" class="action">edit</a></td>
+	</tr>
 {% endfor %}
-</ul>
+</tbody>
+</table>
 <div>
 <a href="#" class="add action">Add a new item</a>
 <form action="/item/new" method="post" accept-charset="utf-8" class="add_item_form">
 	<fieldset>
 	<label for="title">Enter a sprint backlog item</label><br>
-			<textarea name="title" rows="2" cols="40"></textarea><br>
+			<textarea name="title" style="width:600px"></textarea><br>
 	<label for="owner">Owner</label><br>
 	<select name="owner">
 	{% for user in users %}
@@ -72,13 +77,23 @@ $(document).ready(function(){
 </form>
 </div>
 <hr class="space">
-<h3>Product Backlog</h3>
-<ul>
-{% for item in sprint.backlog_items %}
-	<li><strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong> : {{ item.title }} (<strong>{{ item.estimate }} hours</strong>)
-		<a href="/item?id={{ item.key }}">edit</a></li>
-{% endfor %}
-</ul>
+<h4 class="quiet" style="display:inline">{{ sprint.title }} Product Backlog</h4>
+<table class="items last">
+<tbody>
+{% if not sprint.backlog_items %}
+<p>There are no backlog items assigned to this sprint. You can assign backlog items to this sprint on a backlog page.</p>
+{% else %}
+	{% for item in sprint.backlog_items %}
+		<tr><td class="bullet">•</td>
+			<td class="title"><strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong>: {{ item.title }}</td>
+			<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
+			<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
+			<td class="action">&nbsp;</td>
+		</tr>
+	{% endfor %}
+{% endif %}
+</tbody>
+</table>
 {% endfor %}
 {% endblock %}
 

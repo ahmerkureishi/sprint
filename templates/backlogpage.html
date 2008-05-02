@@ -4,57 +4,60 @@
 
 {% block script %}
 $(document).ready(function(){
-	$(".assign > form").hide();
-	$(".assign > span").click(function(){
+	$("td.assign > form").hide();
+	$("td.assign > a").click(function(){
 		$(this).siblings().show().css("display","inline-block");
 		$(this).hide();
-	});
-	$(".assign > span").hover(function(){
-		$(this).css("color","#00f");
-	},
-	function(){
-		$(this).css({color:"#000"});
 	});
 
 	$('#add_item_form').hide();
 	$('#add').click(function(){
-		$('#add_item_form').show();
-		$(this).hide();
+		$('#add_item_form').slideDown(500);
+		$(this).slideUp(500);
 	});
 	$('#cancel').click(function(){
-		$('#add_item_form').hide();
-		$('#add').show();
+		$('#add_item_form').slideUp(500);
+		$('#add').slideDown(500);
 	});
 });
 
 {% endblock %}
 
 {% block content %}
-<h1>{{ backlog.title }}</h1>
-<p>Backlog Owner: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</p>
-	{% for item in items %}
-	<p><!-- <strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong> : --> 
-	{{ item.title }} : 
-		<span class="assign">
-			<span>{% if item.sprint %} {{ item.sprint.project.title }} - {{ item.sprint.title }} {% else %} Not Assigned to a Sprint {% endif %}</span>
+<h1 style="display:inline">{{ backlog.title }}</h1> <span class="quiet large">{{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</span>
+<hr class="space">
+<table class="items last">
+<tbody>
+{% for item in items %}
+	<tr><td class="bullet">•</td>
+		<td class="title">{{ item.title }}</td>
+		<td class="assign">
+			<a href="#" class="editable">{% if item.sprint %} {{ item.sprint.project.title }} –
+				                       {{ item.sprint.title }} {% else %} Not Assigned to a Sprint {% endif %}</a>
 			<form action="/item/update?id={{ item.key }}" method="post">
 				<select name="sprint_id">
 					{% for sprint in sprints %}
-					<option value="{{ sprint.key }}">{{ sprint.project.title }} : {{ sprint.title }}</option>
+					<option {% ifequal item.sprint.key sprint.key %}selected="selected"{% endifequal %}value="{{ sprint.key }}">
+						{{ sprint.project.title }} : {{ sprint.title }}</option>
 					{% endfor %}
-				</select>
+				</select><br>
 				<input type="submit" value="Update">
 			</form>
-		</span> :
-		(<strong>{{ item.estimate }} hours</strong>)
-		<a href="/item?id={{ item.key }}">edit</a></p>
-	{% endfor %}
+		</td>
+		<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
+		<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
+		<td class="action"><a href="/item?id={{ item.key }}" class="action">edit</a></td>
+	</tr>
+{% endfor %}
+</tbody>
+</table>
+
 <a href="#" class="action" id="add">Add a new backlog item</a>
 
 <form action="/item/new" method="post" id="add_item_form">
 	<fieldset>
 	<label for="title">Enter a backlog item</label><br>
-		<textarea name="title" rows="2" cols="40"></textarea><br>
+		<textarea name="title"></textarea><br>
 	<label for="owner">Owner</label><br>
 		<select name="owner">
 			{% for user in users %}

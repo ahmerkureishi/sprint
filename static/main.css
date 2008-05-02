@@ -1,5 +1,51 @@
+h1, h2 {
+	font-family: Times, "Times New Roman", Georgia, serif;
+}
+
 a.action {
 	color: #f00;
+}
+
+a.nav_list:link {
+	text-decoration: none;
+	color: gray;
+}
+
+a.nav_list:visited {
+	text-decoration: none;
+	color: gray;
+}
+
+a.nav_list:hover {
+	text-decoration: none;
+	color: #fff;
+	background: gray;
+}
+
+a.nav_list:active {
+	text-decoration: none;
+	color: gray;
+}
+
+a.editable:link {
+	text-decoration: none;
+	color: #000;
+}
+
+a.editable:visited {
+	text-decoration: none;
+	color: #000;
+}
+
+a.editable:hover {
+	text-decoration: none;
+	color: #fff;
+	background: gray;
+}
+
+a.editable:active {
+	text-decoration: none;
+	color: #000;
 }
 
 span.sprint_assignment {
@@ -18,20 +64,17 @@ textarea {
 	height: auto;
 }
 
-h1, h2 {
-	font-family: Times, "Times New Roman", Georgia, serif;
-}
-
-table.items td {
-	border-bottom: 1px dotted #e6e6e6;
-}
-
 h1#logo {
 	color: #ccc;
 }
 
 div#top_nav {
 	text-align: right;
+}
+
+table.items td {
+	border-bottom: 1px dotted #e6e6e6;
+	vertical-align: top;
 }
 
 table.items td.bullet {
@@ -45,5 +88,10 @@ table.items td.estimate {
 }
 
 table.items td.date {
-	width: 3.5em;
+	width: 3.0em;
+}
+
+table.items td.action {
+	width: 2.5em;
+	text-align: right;
 }

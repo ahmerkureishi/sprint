@@ -5,11 +5,9 @@
 {% block content %}
 <h1>Edit Item</h1>
 <form action="/item/update?id={{ item.key }}" method="post" accept-charset="utf-8">
-	<p>
-		<label for="title">Item title</label><br>
-		<input type="text" class="text" name="title" value="{{ item.title }}" size="70">
-	</p>
-	<p>
+	<fieldset>
+	<label for="title">Edit the item description</label><br>
+		<textarea name="title" style="width:600px">{{ item.title }}</textarea><br>
 		<label for="owner">Item owner</label><br>
 		<select name="owner">
 			<option value="none">--------</option>
@@ -18,17 +16,16 @@
 				{{ user_choice.first_name }} {{ user_choice.last_name }}
 			</option>
 			{% endfor %}
-		</select>
-	</p>
-	<p>
+		</select><br>
 		<label for="estimate">Estimate</label><br>
-		<input type="text" class="text" name="estimate" value="{{ item.estimate }}" size=3 maxlength=3> hours
-	</p>
+		<input type="text" class="text" name="estimate" value="{{ item.estimate }}" size=3 maxlength=3> hours (Last updated: {{ item.last_estimate_date|date:"M j, Y" }} by {{ item.last_estimate_by.first_name}} {{ item.last_estimate_by.last_name}})<br>
+	<hr class="space">
+	<hr>
 	{% if next %}
 	<input type="hidden" name="next" value="{{ next }}">
 	{% endif %}
-	<p class="submit">
-		<input type="submit" value="Save Changes">
-	</p>
+	<input type="hidden" name="previous_estimate" value="{{ item.estimate }}">
+	<input type="submit" value="Save Changes">
+	</fieldset>
 </form>
 {% endblock %}
