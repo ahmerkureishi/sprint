@@ -122,7 +122,7 @@ class ProjectPage(BaseRequestHandler):
 		for sprint in project.sprints:
 			item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog = :2 ORDER BY title", sprint, None)
 			sprint.items = [item for item in item_query]
-			backlog_item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog > :2 ORDER BY backlog, title", sprint, None)
+			backlog_item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog > :2 ORDER BY backlog, title", sprint, "")
 			sprint.backlog_items = [item for item in backlog_item_query]
 			today = datetime.date.today()
 			query_datetime = datetime.datetime.combine(today,datetime.time().min)
