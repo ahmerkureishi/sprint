@@ -126,7 +126,7 @@ class ProjectPage(BaseRequestHandler):
 			sprint.backlog_items = [item for item in backlog_item_query]
 			today = datetime.date.today()
 			query_datetime = datetime.datetime.combine(today,datetime.time().min)
-			snap_query = db.GqlQuery("SELECT * FROM SprintSnap WHERE sprint = :1 AND date <= :2", sprint, query_datetime)
+			snap_query = db.GqlQuery("SELECT * FROM SprintSnap WHERE sprint = :1 AND date <= :2 ORDER BY date DESC", sprint, query_datetime)
 			sprint.snap = snap_query.get()
 		
 		self.generate('projectpage.html', {
