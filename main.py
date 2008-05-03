@@ -126,8 +126,12 @@ class ProjectPage(BaseRequestHandler):
 			sprint.backlog_items = [item for item in backlog_item_query]
 			today = datetime.date.today()
 			query_datetime = datetime.datetime.combine(today,datetime.time().min)
-			snap_query = db.GqlQuery("SELECT * FROM SprintSnap WHERE sprint = :1 AND date <= :2 ORDER BY date DESC", sprint, query_datetime)
-			sprint.snap = snap_query.get()
+			snap_query = db.GqlQuery("SELECT * FROM SprintSnap WHERE sprint = :1 AND date <= :2 ORDER BY date", sprint, query_datetime)
+			sparkline = snap_query.fetch(100,0)
+			sprint.snap = sparkline[-1]
+			estimates = [int(snap.estimate) for snap in sparkline]
+			sprint.sparkline = ",".join(str(estimate) for estimate in estimates)
+			sprint.sparkline_limits = "0," + str(max(estimates))
 		
 		self.generate('projectpage.html', {
 			'project': project, 

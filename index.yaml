@@ -10,7 +10,7 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Unused in query history -- copied from input.
+# Used 3 times in query history.
 - kind: Item
   properties:
   - name: backlog
@@ -18,7 +18,7 @@ indexes:
   - name: sprint
   - name: title
 
-# Used 2 times in query history.
+# Used 7 times in query history.
 - kind: Item
   properties:
   - name: backlog
@@ -50,7 +50,7 @@ indexes:
   - name: owner
   - name: title
 
-# Used 2 times in query history.
+# Used 7 times in query history.
 - kind: Item
   properties:
   - name: sprint
@@ -70,7 +70,7 @@ indexes:
   - name: user
   - name: title
 
-# Used 4 times in query history.
+# Used 12 times in query history.
 - kind: Sprint
   properties:
   - name: project
@@ -89,19 +89,19 @@ indexes:
   - name: project
   - name: title
 
+# Used 2 times in query history.
+- kind: SprintSnap
+  properties:
+  - name: date
+  - name: sprint
+
 # Used once in query history.
 - kind: SprintSnap
   properties:
-  - name: date
-  - name: sprint
-
-# Unused in query history -- copied from input.
-- kind: SprintSnap
-  properties:
   - name: sprint
   - name: date
 
-# Used 3 times in query history.
+# Used 6 times in query history.
 - kind: SprintSnap
   properties:
   - name: sprint
