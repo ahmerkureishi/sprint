@@ -40,11 +40,20 @@ $(document).ready(function(){
 </div>
 <hr class="space">
 {% for sprint in project.sprints %}
+<div><img src="http://chart.apis.google.com/chart?cht=lc
+	&amp;chd=t:{{ sprint.chart_data }}
+	&amp;chds={{ sprint.chart_limits }}
+	&amp;chxt=x,y
+	&amp;chxl=0:|{{ sprint.chart_start_date|date:"F j" }}|{{ sprint.chart_end_date|date:"F j" }}
+	&amp;chxr=1,{{ sprint.chart_limits }}
+	&amp;chs=400x200
+	&amp;chco=0077CC
+	&amp;chm=B,E6F2FA,0,0,0|s,000099,0,{{ sprint.chart_total_data_points }}.0,8.0" /></div>
 <p><h3 style="display:inline">{{ sprint.title }}</h3>
 	<span class="quiet">  {{ sprint.start_date|date:"F j, Y"}} to {{ sprint.end_date|date:"F j, Y"}}</span>&nbsp;
 	<img src="http://chart.apis.google.com/chart?cht=ls
-		&amp;chd=t:{{ sprint.sparkline }}
-		&amp;chds={{ sprint.sparkline_limits }}
+		&amp;chd=t:{{ sprint.chart_data }}
+		&amp;chds={{ sprint.chart_limits }}
 		&amp;chs=60x20
 		&amp;chco=0077CC
 		&amp;chm=B,E6F2FA,0,0,0" /></p>
