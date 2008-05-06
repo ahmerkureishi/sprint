@@ -162,17 +162,18 @@ class ProjectPage(BaseRequestHandler):
 			today = datetime.date.today()
 			query_datetime = datetime.datetime.combine(today,datetime.time().min)
 			snap_query = db.GqlQuery("SELECT * FROM SprintSnap WHERE sprint = :1 AND date <= :2 ORDER BY date", sprint, query_datetime)
-			snapshots = snap_query.fetch(100,0)
-			sprint.snap = snapshots[-1]
-			#Build chart data
-			remaining_days = (sprint.end_date - sprint.snap.date).days
-			remaining_series = ",-1" * (remaining_days - 1) + ",0"
-			estimates = [int(snap.estimate) for snap in snapshots]
-			sprint.chart_start_date = snapshots[0].date
-			sprint.chart_end_date = sprint.end_date
-			sprint.chart_total_data_points = len(estimates) + remaining_days - 1
-			sprint.chart_data = ",".join(str(estimate) for estimate in estimates) + remaining_series
-			sprint.chart_limits = "0," + str(max(estimates))
+			if snap_query.count():
+				snapshots = snap_query.fetch(200,0)
+				sprint.snap = snapshots[-1]
+				#Build chart data
+				remaining_days = (sprint.end_date - sprint.snap.date).days
+				remaining_series = ",-1" * (remaining_days - 1) + ",0"
+				estimates = [int(snap.estimate) for snap in snapshots]
+				sprint.chart_start_date = snapshots[0].date
+				sprint.chart_end_date = sprint.end_date
+				sprint.chart_total_data_points = len(estimates) + remaining_days - 1
+				sprint.chart_data = ",".join(str(estimate) for estimate in estimates) + remaining_series
+				sprint.chart_limits = "0," + str(max(estimates))
 		
 		self.generate('projectpage.html', {
 			'project': project, 
