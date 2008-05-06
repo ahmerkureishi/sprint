@@ -2,6 +2,14 @@
 
 {% block title %}Sprint - Help Page{% endblock %}
 
+{% block script %}
+$(document).ready(function(){	
+	$('#team_selector').change(function(){
+		$('#set_current_team').trigger('submit');
+	});
+});
+{% endblock %}
+
 {% block content %}
 <h1>About Sprint</h1>
 <hr>

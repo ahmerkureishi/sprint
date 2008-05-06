@@ -27,6 +27,7 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
+
 import wsgiref.handlers
 
 # Set to true if we want to have our webapp print stack traces, etc
@@ -43,9 +44,15 @@ class BaseRequestHandler(webapp.RequestHandler):
 	terms as noted above.
 	"""
 	def generate(self, template_name, template_values={}):
+		teams_query = TeamMember.gql("WHERE user = :1", users.GetCurrentUser())
+		teams = [team_member for team_member in teams_query.fetch(20)]
+		for team_member in teams:
+			team_member.owner_app_user = team_member.team.get_owner()
 		values = {
 			'request': self.request,
 			'user': AppUser.getCurrentUser(),
+			'teams': teams,
+			'today': datetime.date.today(),
 			'login_url': users.CreateLoginURL(self.request.uri),
 			'logout_url': users.CreateLogoutURL('http://' + self.request.host + '/'),
 			'debug': self.request.get('deb'),
@@ -63,18 +70,21 @@ class MainPage(BaseRequestHandler):
 		# Make sure we have an AppUser session object otherwise send to the user profile to make one
 		user = users.get_current_user()
 		app_user_query = db.GqlQuery("SELECT * FROM AppUser WHERE user = :1", user)
-		app_user = app_user_query.get()
 		if not app_user_query.get():
 			self.redirect('/user')
+			return
 		
 		# Get all the user's items and the associated sprints and projects. This is sort of inefficient
 		# because it gets all projects and sprints then removes the ones that aren't related to user items
-		user_projects = [project for project in Project.all().order('title')]
+		project_query = Project.gql("WHERE team = :1 ORDER BY title", AppUser.getCurrentUser().current_team)
+		projects = project_query.fetch(200)
+		user_projects = [project for project in projects]
 		for project in user_projects:
 			sprint_query = db.GqlQuery("SELECT * FROM Sprint WHERE project = :1 ORDER BY start_date ASC", project)
 			project.sprints = [sprint for sprint in sprint_query]
 			for sprint in project.sprints:
-				item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog = :2 AND owner = :3 ORDER BY title", sprint, None, app_user)
+				item_query = db.GqlQuery("SELECT * FROM Item \
+					WHERE sprint = :1 AND backlog = :2 AND owner = :3 ORDER BY title", sprint, None, AppUser.getCurrentUser())
 				sprint.items = [item for item in item_query]
 			for sprint in project.sprints[:]:
 				if not sprint.items:
@@ -82,32 +92,52 @@ class MainPage(BaseRequestHandler):
 		for project in user_projects[:]:
 			if not project.sprints:
 				user_projects.remove(project)
-		
+
+		backlog_query = Backlog.gql("WHERE team = :1 ORDER BY title", AppUser.getCurrentUser().current_team)
+		backlogs = backlog_query.fetch(200)
+
+
 		self.generate('mainpage.html', {
 			'user_projects': user_projects,
-			'projects': Project.all().order('title'),
-			'sprints': Sprint.all().order('title'),
-			'backlogs': Backlog.all().order('title'),
-			'users': AppUser.all(),
+			'projects': projects,
+			'backlogs': backlogs,
+			'users': AppUser.getCurrentUser().current_team.get_all_members(),
 			})
 
 
 class UserPage(BaseRequestHandler):
 	def get(self):
 		'''Displays the user profile page.'''
-		# Make sure the user has a profile object
-		user = AppUser.getCurrentUser()
-		if not user:
-			user = AppUser()
-			user.user = users.GetCurrentUser()
-			user.put()
-			user.alert_message = "Please update your preferences."
-		
-		alert = user.alert_message
-		user.alert_message = None
-		user.put()
+		# Make sure the user has an AppUser profile, if not, create one and a team and a team member relationship
+		app_user = AppUser.getCurrentUser()
+		if not app_user:
+			# Create a new Team
+			team = Team()
+			team.put()
+			# Create a new AppUser record
+			app_user = AppUser()
+			app_user.user = users.GetCurrentUser()
+			app_user.current_team = team
+			app_user.alert_message = "Please update your profile."
+			app_user.put()
+			# Create an owner relationship between the Team and the AppUser
+			team_member = TeamMember(user=users.GetCurrentUser(),owner=True,team=app_user.current_team)
+			team_member.put()
+			team_members = [team_member,]
+		else:
+			team_member_query = TeamMember.gql('WHERE user = :1 AND owner = True', users.GetCurrentUser())
+			team_member = team_member_query.get()
+			team = team_member.team
+			team_member_query_2 = TeamMember.gql('WHERE team = :1', team)
+			team_members = [AppUser.getFromUser(team_member.user) for team_member in team_member_query_2.fetch(100)]
+
+		alert = app_user.alert_message
+		app_user.alert_message = None
+		app_user.put()
 		
 		self.generate('userpage.html', {
+			'team': team,
+			'team_members': team_members,
 			'alert': alert,
 			})
 
@@ -131,7 +161,7 @@ class ProjectPage(BaseRequestHandler):
 		
 		self.generate('projectpage.html', {
 			'project': project, 
-			'users': AppUser.all(),
+			'users': AppUser.getCurrentUser().current_team.get_all_members(),
 		})
 
 
@@ -141,12 +171,21 @@ class BacklogPage(BaseRequestHandler):
 		id = self.request.get('id')
 		backlog = Backlog.get(id)
 		items = db.GqlQuery("SELECT * FROM Item WHERE backlog = :1 ORDER BY title", backlog)
+		
+		project_query = Project.gql("WHERE team = :1 ORDER BY title", AppUser.getCurrentUser().current_team)
+		projects = project_query.fetch(200)
+		user_projects = [project for project in projects]
+		sprints = []
+		for project in user_projects:
+			sprint_query = db.GqlQuery("SELECT * FROM Sprint WHERE project = :1 ORDER BY start_date ASC", project)
+			result = [sprint for sprint in sprint_query]
+			sprints.extend(result)
 
 		self.generate('backlogpage.html', {
 			'backlog': backlog, 
 			'items': items, 
-			'users': AppUser.all(),
-			'sprints': Sprint.all().order('title'),
+			'users': AppUser.getCurrentUser().current_team.get_all_members(),
+			'sprints': sprints,
 		})
 
 
@@ -160,7 +199,7 @@ class ItemPage(BaseRequestHandler):
 		self.generate('itempage.html', {
 			'item': item,
 			'next': next,
-			'users': AppUser.all(),
+			'users': AppUser.getCurrentUser().current_team.get_all_members(),
 		})
 
 
@@ -174,20 +213,26 @@ class UpdateUserAction(BaseRequestHandler):
 	def post(self):
 		'''Edits the user profile.'''
 		id = self.request.get('id')
-		app_user = AppUser.get(id)
+		user = AppUser.get(id)
 
-		app_user.first_name = self.request.get('first_name')
-		app_user.last_name = self.request.get('last_name')
-		app_user.alert_message = "You have successfully updated your profile."
+		user.first_name = self.request.get('first_name')
+		user.last_name = self.request.get('last_name')
+		user.alert_message = "You have successfully updated your profile."
 
-		app_user.put()
+		team_member_query = TeamMember.gql('WHERE user = :1 AND owner = True', users.GetCurrentUser())
+		team_member = team_member_query.get()
+		team = team_member.team
+		team.title = self.request.get('team_title')
+
+		user.put()
+		team.put()
 
 		self.redirect('/user')
 
 
 class CreateProjectAction(BaseRequestHandler):
 	def post(self):
-		project = Project()
+		project = Project(team=AppUser.getCurrentUser().current_team)
 		project.title = self.request.get('title')
 		
 		project.put()
@@ -221,13 +266,46 @@ class CreateSprintAction(BaseRequestHandler):
 
 class CreateBacklogAction(BaseRequestHandler):
 	def post(self):
-		backlog = Backlog()
+		backlog = Backlog(team=AppUser.getCurrentUser().current_team)
 		backlog.title = self.request.get('title')
 		backlog.owner = AppUser.get(self.request.get('owner'))
 		
 		backlog.put()
 		
 		self.redirect('/')
+
+
+class SetCurrentTeamAction(BaseRequestHandler):
+	def post(self):
+		app_user = AppUser.getCurrentUser()
+		team = Team.get(self.request.get('team'))
+		if team.current_user_has_access():
+			app_user.current_team = team
+			app_user.put()
+			self.redirect('/')
+		else:
+			self.error(403)
+			return
+
+
+class AddMemberAction(BaseRequestHandler):
+  def post(self):
+	team = Team.get(self.request.get('team'))
+	email = self.request.get('email')
+	if not team or not email:
+	  self.error(403)
+	  return
+
+	# Validate this user is the owner of this team
+	if not team.current_user_is_owner():
+	  self.error(403)
+	  return
+
+	user = users.User(email)
+	if not team.user_has_access(user):
+	  member = TeamMember(user=user, team=team)
+	  member.put()
+	self.redirect('/user')
 
 
 class EditItemAction(BaseRequestHandler):
@@ -300,21 +378,68 @@ class EditItemAction(BaseRequestHandler):
 # Need to add a delete item action. This will also need to update the snapshot baseline to remove the 
 
 
+class Team(db.Model):
+	'''Represents a Team.
+
+	A Team owns a set of backlogs and projects. For now a user can only own one team but can be
+	a member of more than one team (see TeamMember).'''
+	title = db.StringProperty(default="My Team")
+	
+	def get_all_members(self):
+		query = db.GqlQuery("SELECT * FROM TeamMember WHERE team = :1", self)
+		result =  query.fetch(100)
+		return [AppUser.getFromUser(team_member.user) for team_member in result]
+	
+	def get_owner(self):
+		query = db.GqlQuery("SELECT * FROM TeamMember WHERE team = :1 AND owner = True", self)
+		result =  query.get()
+		return AppUser.getFromUser(result.user)
+	
+	def current_user_is_owner(self):
+		user = AppUser.getCurrentUser().user
+		query = db.GqlQuery("SELECT * FROM TeamMember WHERE team = :1 AND user = :2 AND owner = True", self, user)
+		return query.get()
+	
+	def current_user_has_access(self):
+		return self.user_has_access(users.GetCurrentUser())
+		
+	def user_has_access(self, user):
+		if not user: return False
+		query = db.GqlQuery("SELECT * FROM TeamMember WHERE team = :1 AND user = :2", self, user)
+		return query.get()
+
+
 class AppUser(db.Model):
 	user = db.UserProperty()
-	first_name = db.StringProperty()
-	last_name = db.StringProperty()
+	first_name = db.StringProperty(default="First")
+	last_name = db.StringProperty(default="Last")
 	alert_message = db.StringProperty()
+	current_team = db.ReferenceProperty(Team)
 	
 	@staticmethod
 	def getCurrentUser():
 		"""docstring for getCurrent"""
-		query = AppUser.gql("WHERE user = :1", users.GetCurrentUser())
+		user = users.GetCurrentUser()
+		return AppUser.getFromUser(user)
+	
+	@staticmethod
+	def getFromUser(user):
+		query = AppUser.gql("WHERE user = :1", user)
 		return query.get()
+
+
+class TeamMember(db.Model):
+	'''Represents the many-to-many relationship between AppUsers and Teams.
+
+	Serves as ACL to Team data. Projects and Backlogs are connected to only one team.'''
+	user = db.UserProperty(required=True)
+	owner = db.BooleanProperty(default=False)
+	team = db.ReferenceProperty(Team, required=True)
 
 
 class Project(db.Model):
 	title = db.StringProperty()
+	team = db.ReferenceProperty(Team, required=True)
 
 
 class Sprint(db.Model):
@@ -333,13 +458,13 @@ class SprintSnap(db.Model):
 class Backlog(db.Model):
 	title = db.StringProperty()
 	owner = db.ReferenceProperty(AppUser)
+	team = db.ReferenceProperty(Team, required=True)
 
 
 class Item(db.Model):
 	title = db.StringProperty(required=True)
 	backlog = db.ReferenceProperty(Backlog, default=None)
 	sprint = db.ReferenceProperty(Sprint, default=None)
-	project = db.ReferenceProperty(Project, default=None)
 	owner = db.ReferenceProperty(AppUser, default=None)
 	estimate = db.IntegerProperty(default=0)
 	last_estimate_date = db.DateProperty(auto_now_add=True)
@@ -361,6 +486,8 @@ def main():
 	apps_binding.append(('/item/new', EditItemAction))
 	apps_binding.append(('/item/update', EditItemAction))
 	apps_binding.append(('/help', HelpPage))
+	apps_binding.append(('/team/set-current', SetCurrentTeamAction))
+	apps_binding.append(('/team/add-member', AddMemberAction))
 
 	application = webapp.WSGIApplication(apps_binding, debug=_DEBUG)
 	wsgiref.handlers.CGIHandler().run(application)

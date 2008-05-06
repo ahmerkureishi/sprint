@@ -9,6 +9,14 @@
 	{% endif %}
 {% endblock %}
 
+{% block script %}
+$(document).ready(function(){	
+	$('#team_selector').change(function(){
+		$('#set_current_team').trigger('submit');
+	});
+});
+{% endblock %}
+
 {% block content %}
 	{% if alert %}
 		<hr class="space">
@@ -16,12 +24,27 @@
 	{% endif %}
 	<h2>Edit {% if user.first_name %} {{ user.first_name }} {{ user.last_name }} {% else %} {{ user.email }} {% endif %}</h2>
 	<form action="/user/update?id={{ user.key }}" method="post" accept-charset="utf-8">
-		<p><label>First Name</label><br>
-		<input type="text" class="text" name="first_name" value="{{ user.first_name }}"></p>
-		<p><label>Last Name</label><br>
-		<input type="text" class="text" name="last_name" value="{{ user.last_name }}"></p>
-		<p><label>Email</label><br>
-		{{ user.user.email }}</p>
+		<label>First Name</label><br>
+		<input type="text" class="text" name="first_name" value="{{ user.first_name }}"><br>
+		<label>Last Name</label><br>
+		<input type="text" class="text" name="last_name" value="{{ user.last_name }}"><br>
+		<label>Team Name</label><br>
+		<input type="text" class="text" name="team_title" value="{{ team.title|escape }}" size=40 maxsize=40><br>
+		<hr class="space">
 		<p class="submit"><input type="submit" value="Update"></p>
+	</form>
+	<h2>Your Team Collaborators</h2>
+	<ul>
+	{% for member in team_members %}
+		<li>{{ member.first_name }} {{ member.last_name }}{% if member.last_name %} : {% endif %}{{ member.user.email }}</li>
+	{% endfor %}
+	</ul><br>
+	<hr class="space">
+	<h3>Add collaborators to your team</h3>
+	<form action="/team/add-member" method="post" id="memberform">
+		<input type="hidden" name="team" value="{{ team.key }}"/>
+		<label for="email">Email address <span class="quiet">(must be a valid Gmail login address)</span></label><br>
+		<input name="email" type="text" size=40>
+		<input type="submit" value="Add Collaborator">
 	</form>
 {% endblock %}

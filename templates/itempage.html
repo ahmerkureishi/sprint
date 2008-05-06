@@ -2,6 +2,14 @@
 
 {% block title %}Item - {{ item.title }}{% endblock %}
 
+{% block script %}
+$(document).ready(function(){	
+	$('#team_selector').change(function(){
+		$('#set_current_team').trigger('submit');
+	});
+});
+{% endblock %}
+
 {% block content %}
 <h1>Edit Item</h1>
 <form action="/item/update?id={{ item.key }}" method="post" accept-charset="utf-8">
