@@ -2,12 +2,20 @@
 
 {% block title %}Item - {{ item.title }}{% endblock %}
 
+{% block script %}
+$(document).ready(function(){	
+	$('#team_selector').change(function(){
+		$('#set_current_team').trigger('submit');
+	});
+});
+{% endblock %}
+
 {% block content %}
 <h1>Edit Item</h1>
 <form action="/item/update?id={{ item.key }}" method="post" accept-charset="utf-8">
 	<fieldset>
 	<label for="title">Edit the item description</label><br>
-		<textarea name="title" style="width:600px">{{ item.title }}</textarea><br>
+		<textarea name="title" style="width:600px">{{ item.title|escape }}</textarea><br>
 		<label for="owner">Item owner</label><br>
 		<select name="owner">
 			<option value="none">--------</option>

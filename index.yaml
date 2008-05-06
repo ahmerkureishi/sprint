@@ -10,7 +10,13 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 6 times in query history.
+# Used 25 times in query history.
+- kind: Backlog
+  properties:
+  - name: team
+  - name: title
+
+# Used 34 times in query history.
 - kind: Item
   properties:
   - name: backlog
@@ -18,14 +24,14 @@ indexes:
   - name: sprint
   - name: title
 
-# Used 68 times in query history.
+# Used 30 times in query history.
 - kind: Item
   properties:
   - name: backlog
   - name: sprint
   - name: title
 
-# Unused in query history -- copied from input.
+# Used 15 times in query history.
 - kind: Item
   properties:
   - name: backlog
@@ -50,7 +56,7 @@ indexes:
   - name: owner
   - name: title
 
-# Used 68 times in query history.
+# Used 30 times in query history.
 - kind: Item
   properties:
   - name: sprint
@@ -70,7 +76,13 @@ indexes:
   - name: user
   - name: title
 
-# Used 76 times in query history.
+# Used 40 times in query history.
+- kind: Project
+  properties:
+  - name: team
+  - name: title
+
+# Used 100 times in query history.
 - kind: Sprint
   properties:
   - name: project
@@ -89,21 +101,46 @@ indexes:
   - name: project
   - name: title
 
-# Used 6 times in query history.
+# Used 17 times in query history.
 - kind: SprintSnap
   properties:
   - name: date
   - name: sprint
 
-# Used 62 times in query history.
+# Used 66 times in query history.
 - kind: SprintSnap
   properties:
   - name: sprint
   - name: date
 
-# Used 7 times in query history.
+# Used 36 times in query history.
 - kind: SprintSnap
   properties:
   - name: sprint
   - name: date
     direction: desc
+
+# Used 85 times in query history.
+- kind: TeamMember
+  properties:
+  - name: owner
+  - name: team
+
+# Used once in query history.
+- kind: TeamMember
+  properties:
+  - name: owner
+  - name: team
+  - name: user
+
+# Used 9 times in query history.
+- kind: TeamMember
+  properties:
+  - name: owner
+  - name: user
+
+# Used 2 times in query history.
+- kind: TeamMember
+  properties:
+  - name: team
+  - name: user

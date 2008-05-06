@@ -4,10 +4,18 @@
 
 {% block script %}
 $(document).ready(function(){
+	$('#team_selector').change(function(){
+		$('#set_current_team').trigger('submit');
+	});
+	
 	$("td.assign > form").hide();
-	$("td.assign > a").click(function(){
-		$(this).siblings().show().css("display","inline-block");
+	$("td.assign > a.editable").click(function(){
+		$(this).siblings().show();
 		$(this).hide();
+	});
+	$("td.assign > form a").click(function(){
+		$(this).parent("form").hide();
+		$(this).parent("form").siblings("a").show();
 	});
 
 	$('#add_item_form').hide();
@@ -34,14 +42,14 @@ $(document).ready(function(){
 		<td class="assign">
 			<a href="#" class="editable">{% if item.sprint %} {{ item.sprint.project.title }} –
 				                       {{ item.sprint.title }} {% else %} Not Assigned to a Sprint {% endif %}</a>
-			<form action="/item/update?id={{ item.key }}" method="post">
+			<form action="/item/update?id={{ item.key }}" method="post" style="display:inline-block">
 				<select name="sprint_id">
 					{% for sprint in sprints %}
 					<option {% ifequal item.sprint.key sprint.key %}selected="selected"{% endifequal %}value="{{ sprint.key }}">
 						{{ sprint.project.title }} : {{ sprint.title }}</option>
 					{% endfor %}
 				</select><br>
-				<input type="submit" value="Update">
+				<input type="submit" value="Update"> or <a href="#" class="action">Cancel</a>
 			</form>
 		</td>
 		<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
@@ -57,7 +65,7 @@ $(document).ready(function(){
 <form action="/item/new" method="post" id="add_item_form">
 	<fieldset>
 	<label for="title">Enter a backlog item</label><br>
-		<textarea name="title"></textarea><br>
+		<textarea name="title" style="width:600px"></textarea><br>
 	<label for="owner">Owner</label><br>
 		<select name="owner">
 			{% for user in users %}
