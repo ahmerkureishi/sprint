@@ -4,6 +4,9 @@
 
 {% block script %}
 $(document).ready(function(){	
+	$('#team_selector').change(function(){
+		$('#set_current_team').trigger('submit');
+	});
 	$('form.add_item_form').hide();
 	$('.add').click(function(){
 		$(this).siblings('form.add_item_form').slideDown(500);

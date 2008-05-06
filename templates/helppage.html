@@ -2,8 +2,17 @@
 
 {% block title %}Sprint - Help Page{% endblock %}
 
+{% block script %}
+$(document).ready(function(){	
+	$('#team_selector').change(function(){
+		$('#set_current_team').trigger('submit');
+	});
+});
+{% endblock %}
+
 {% block content %}
 <h1>About Sprint</h1>
 <hr>
 <p>Sprint is a collaborative Scrum management application.</p>
+<p><strong>WARNING</strong>: This application is still under development. Use at your own risk.</p>
 {% endblock %}

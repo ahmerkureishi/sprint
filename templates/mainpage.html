@@ -4,6 +4,9 @@
 
 {% block script %}
 $(document).ready(function(){
+	$('#team_selector').change(function(){
+		$('#set_current_team').trigger('submit');
+	});
 	$('#add_project_form').hide();
 	$('#add_backlog_form').hide();
 	$('#new_project').click(function(){
@@ -29,6 +32,10 @@ $(document).ready(function(){
 <div class="span-18" id="main">
 	<h1>Open Items for {{ user.first_name }} {{ user.last_name }}</h1>
 	<hr>
+	{% if alert %}
+		<hr class="space">
+		<div class="success">{{ alert }}</div>
+	{% endif %}
 	<form action="/project/new" method="post" id="add_project_form">
 		<legend><span class="large">Add a new project</span></legend>
 		<fieldset>
@@ -93,7 +100,7 @@ $(document).ready(function(){
 	<h2 class="bottom">Backlogs</h2>
 	{% for backlog in backlogs %}
 		<div><a href="/backlog?id={{ backlog.key }}"  class="large nav_list">{{ backlog.title }}</a> 
-			<span class="quiet">: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</span></div>
+			: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</div>
 	{% endfor %}
 	<a href="#" class="action" id="new_backlog">Add a new backlog</a>
 </div>
