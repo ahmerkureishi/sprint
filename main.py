@@ -69,10 +69,11 @@ class MainPage(BaseRequestHandler):
 		'''Displays the dashboard page.'''
 		# Make sure we have an AppUser session object otherwise send to the user profile to make one
 		user = users.get_current_user()
-		app_user_query = db.GqlQuery("SELECT * FROM AppUser WHERE user = :1", user)
-		if not app_user_query.get():
+		if not AppUser.getFromUser(user):
 			self.redirect('/user')
 			return
+		else:
+			app_user = AppUser.getFromUser(user)
 		
 		# Get all the user's items and the associated sprints and projects. This is sort of inefficient
 		# because it gets all projects and sprints then removes the ones that aren't related to user items
@@ -96,12 +97,16 @@ class MainPage(BaseRequestHandler):
 		backlog_query = Backlog.gql("WHERE team = :1 ORDER BY title", AppUser.getCurrentUser().current_team)
 		backlogs = backlog_query.fetch(200)
 
+		alert = app_user.alert_message
+		app_user.alert_message = None
+		app_user.put()
 
 		self.generate('mainpage.html', {
 			'user_projects': user_projects,
 			'projects': projects,
 			'backlogs': backlogs,
 			'users': AppUser.getCurrentUser().current_team.get_all_members(),
+			'alert': alert,
 			})
 
 
@@ -152,7 +157,7 @@ class ProjectPage(BaseRequestHandler):
 		for sprint in project.sprints:
 			item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog = :2 ORDER BY title", sprint, None)
 			sprint.items = [item for item in item_query]
-			backlog_item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog > :2 ORDER BY backlog, title", sprint, "")
+			backlog_item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog > :2 ORDER BY backlog, title", sprint, 0)
 			sprint.backlog_items = [item for item in backlog_item_query]
 			today = datetime.date.today()
 			query_datetime = datetime.datetime.combine(today,datetime.time().min)
@@ -281,6 +286,7 @@ class SetCurrentTeamAction(BaseRequestHandler):
 		team = Team.get(self.request.get('team'))
 		if team.current_user_has_access():
 			app_user.current_team = team
+			app_user.alert_message = "You changed your current team to: " + team.title
 			app_user.put()
 			self.redirect('/')
 		else:
