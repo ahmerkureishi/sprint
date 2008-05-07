@@ -4,6 +4,8 @@
 
 {% block script %}
 $(document).ready(function(){	
+	$.validator.setDefaults({errorClass: "invalid"})
+	$("#sprint_form").validate();
 	$("#team_selector").change(function(){
 		$("#set_current_team").trigger("submit");
 	});
@@ -26,17 +28,20 @@ $(document).ready(function(){
 {% block content %}
 <h1>{{ project.title }}</h1>
 <hr>
+{% if alert %}
+	<hr class="space">
+	<div class="{{ alert_type }}">{{ alert }}</div>
+{% endif %}
 <div>
 	<a href="#" class="add action">Add a new sprint</a>
-	<div id="calendars"></div>
 	<form class="add_item_form" id="sprint_form" action="/sprint/new" method="post">
 		<fieldset>
 		<label for="title">Enter a sprint title</label><br>
-		<input type="text" class="title" name="title" value="" size=10 maxsize=10><span class="quiet small"> (ex: "Sprint 1")</span><br>
+		<input type="text" class="title required" name="title" id="title" value="" size=10 maxsize=10><span class="quiet small"> (ex: "Sprint 1")</span><br>
 		<label for="start_date">Start Date</label><br>
-		<input type="text" class="text" id="start_date" name="start_date" value="" size=10 maxsize=10><span class="quiet small"> (MM/DD/YYYY)</span><br>
+		<input type="text" class="text required date" id="start_date" name="start_date" value="" size=10 maxsize=10><span class="quiet small"> (MM/DD/YYYY)</span><br>
 		<label for="end_date">End Date</label><br>
-		<input type="text" class="text" id="end_date" name="end_date" value="" size=10 maxsize=10><span class="quiet small"> (MM/DD/YYYY)</span><br>
+		<input type="text" class="text required date" id="end_date" name="end_date" value="" size=10 maxsize=10><span class="quiet small"> (MM/DD/YYYY)</span><br>
 		<hr class="space">
 		<hr>
 		<input type="hidden" name="project_id" value="{{ project.key }}">
@@ -88,18 +93,18 @@ $(document).ready(function(){
 	</table>
 <div>
 <a href="#" class="add action">Add a new item</a>
-<form action="/item/new" method="post" accept-charset="utf-8" class="add_item_form">
+<form action="/item/new" method="post" accept-charset="utf-8" class="add_item_form item_form">
 	<fieldset>
-	<label for="title">Enter a sprint backlog item</label><br>
-			<textarea name="title" style="width:600px"></textarea><br>
+	<label for="itemtitle">Enter a sprint backlog item</label><br>
+			<textarea class="required" name="title" id="itemtitle" style="width:600px"></textarea><br>
 	<label for="owner">Owner</label><br>
-	<select name="owner">
+	<select name="owner" id="owner">
 	{% for user in users %}
 		<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
 	{% endfor %}
 	</select><br>
 	<label for="estimate">Estimate</label><br>
-	<input type="text"  class="text" name="estimate" value="" size="3" maxlength=3> hours<br>
+	<input type="text" class="text required" name="estimate" id="estimate" value="0" size="3" maxlength=3> hours<br>
 	<hr class="space">
 	<hr>
 	<input type="hidden" name="sprint_id" value="{{ sprint.key }}">

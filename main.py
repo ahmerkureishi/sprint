@@ -98,6 +98,7 @@ class MainPage(BaseRequestHandler):
 		backlogs = backlog_query.fetch(200)
 
 		alert = app_user.alert_message
+		alert_type = app_user.alert_type
 		app_user.alert_message = None
 		app_user.put()
 
@@ -107,6 +108,7 @@ class MainPage(BaseRequestHandler):
 			'backlogs': backlogs,
 			'users': AppUser.getCurrentUser().current_team.get_all_members(),
 			'alert': alert,
+			'alert_type': alert_type,
 			})
 
 
@@ -124,6 +126,7 @@ class UserPage(BaseRequestHandler):
 			app_user.user = users.GetCurrentUser()
 			app_user.current_team = team
 			app_user.alert_message = "Please update your profile."
+			app_user.alert_type = "success"
 			app_user.put()
 			# Create an owner relationship between the Team and the AppUser
 			team_member = TeamMember(user=users.GetCurrentUser(),owner=True,team=app_user.current_team)
@@ -137,6 +140,7 @@ class UserPage(BaseRequestHandler):
 			team_members = [AppUser.getFromUser(team_member.user) for team_member in team_member_query_2.fetch(100)]
 
 		alert = app_user.alert_message
+		alert_type = app_user.alert_type
 		app_user.alert_message = None
 		app_user.put()
 		
@@ -144,6 +148,7 @@ class UserPage(BaseRequestHandler):
 			'team': team,
 			'team_members': team_members,
 			'alert': alert,
+			'alert_type': alert_type,
 			})
 
 
@@ -175,9 +180,17 @@ class ProjectPage(BaseRequestHandler):
 				sprint.chart_data = ",".join(str(estimate) for estimate in estimates) + remaining_series
 				sprint.chart_limits = "0," + str(max(estimates))
 		
+		app_user = AppUser.getCurrentUser()
+		alert = app_user.alert_message
+		alert_type = app_user.alert_type
+		app_user.alert_message = None
+		app_user.put()
+	
 		self.generate('projectpage.html', {
 			'project': project, 
 			'users': AppUser.getCurrentUser().current_team.get_all_members(),
+			'alert': alert,
+			'alert_type': alert_type,
 		})
 
 
@@ -234,6 +247,7 @@ class UpdateUserAction(BaseRequestHandler):
 		user.first_name = self.request.get('first_name')
 		user.last_name = self.request.get('last_name')
 		user.alert_message = "You have successfully updated your profile."
+		user.alert_type = "success"
 
 		team_member_query = TeamMember.gql('WHERE user = :1 AND owner = True', users.GetCurrentUser())
 		team_member = team_member_query.get()
@@ -258,24 +272,24 @@ class CreateProjectAction(BaseRequestHandler):
 
 class CreateSprintAction(BaseRequestHandler):
 	def post(self):
-		sprint = Sprint()
-		sprint.title = self.request.get('title')
-		if self.request.get('project_id'):
+		app_user = AppUser.getCurrentUser()
+		title = self.request.get('title')
+		project = Project.get(self.request.get('project_id'))
+		start = self.request.get('start_date').split('/')
+		end = self.request.get('end_date').split('/')
+		start_date = datetime.date(int(start[2]), int(start[0]), int(start[1]))
+		end_date = datetime.date(int(end[2]), int(end[0]), int(end[1]))
+		if start_date >= end_date:
+			app_user.alert_message = "The start date must be earlier than the end date."
+			app_user.alert_type = "error"
+			app_user.put()
+		else:
+			sprint = Sprint()
+			sprint.title = title
 			sprint.project = Project.get(self.request.get('project_id'))
-		if self.request.get('start_date'):
-			start = self.request.get('start_date').split('/')
-			year = int(start[2])
-			month = int(start[0])
-			day = int(start[1])
-			sprint.start_date = datetime.date(year, month, day)
-		if self.request.get('end_date'):
-			end = self.request.get('end_date').split('/')
-			year = int(end[2])
-			month = int(end[0])
-			day = int(end[1])
-			sprint.end_date = datetime.date(year, month, day)
-		
-		sprint.put()
+			sprint.start_date = start_date
+			sprint.end_date = end_date
+			sprint.put()
 		
 		self.redirect(self.request.get('next'))
 
@@ -298,6 +312,7 @@ class SetCurrentTeamAction(BaseRequestHandler):
 		if team.current_user_has_access():
 			app_user.current_team = team
 			app_user.alert_message = "You changed your current team to: " + team.title
+			app_user.alert_type = "success"
 			app_user.put()
 			self.redirect('/')
 		else:
@@ -431,6 +446,7 @@ class AppUser(db.Model):
 	first_name = db.StringProperty(default="First")
 	last_name = db.StringProperty(default="Last")
 	alert_message = db.StringProperty()
+	alert_type = db.StringProperty()
 	current_team = db.ReferenceProperty(Team)
 	
 	@staticmethod
@@ -462,8 +478,8 @@ class Project(db.Model):
 class Sprint(db.Model):
 	title = db.StringProperty()
 	project = db.ReferenceProperty(Project)
-	start_date = db.DateProperty(auto_now_add=True)
-	end_date = db.DateProperty(default=None)
+	start_date = db.DateProperty()
+	end_date = db.DateProperty()
 
 
 class SprintSnap(db.Model):

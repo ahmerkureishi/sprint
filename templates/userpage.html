@@ -10,9 +10,12 @@
 {% endblock %}
 
 {% block script %}
-$(document).ready(function(){	
-	$('#team_selector').change(function(){
-		$('#set_current_team').trigger('submit');
+$(document).ready(function(){
+	$.validator.setDefaults({errorClass: "invalid"})
+	$("#userform").validate();
+	$("#memberform").validate();
+	$("#team_selector").change(function(){
+		$("#set_current_team").trigger("submit");
 	});
 });
 {% endblock %}
@@ -20,16 +23,16 @@ $(document).ready(function(){
 {% block content %}
 	{% if alert %}
 		<hr class="space">
-		<div class="success">{{ alert }}</div>
+		<div class="{{ alert_type }}">{{ alert }}</div>
 	{% endif %}
 	<h2>Edit {% if user.first_name %} {{ user.first_name }} {{ user.last_name }} {% else %} {{ user.email }} {% endif %}</h2>
-	<form action="/user/update?id={{ user.key }}" method="post" accept-charset="utf-8">
-		<label>First Name</label><br>
-		<input type="text" class="text" name="first_name" value="{{ user.first_name }}"><br>
-		<label>Last Name</label><br>
-		<input type="text" class="text" name="last_name" value="{{ user.last_name }}"><br>
-		<label>Team Name</label><br>
-		<input type="text" class="text" name="team_title" value="{{ team.title|escape }}" size=40 maxsize=40><br>
+	<form action="/user/update?id={{ user.key }}" method="post" id="userform" accept-charset="utf-8">
+		<label for="first_name">First Name</label><br>
+		<input type="text" class="text required" name="first_name" id="first_name" value="{{ user.first_name }}">&nbsp;<br>
+		<label for="last_name">Last Name</label><br>
+		<input type="text" class="text required" name="last_name" id="last_name" value="{{ user.last_name }}"><br>
+		<label for="team_title">Team Name</label><br>
+		<input type="text" class="text required" name="team_title" id="team_title" value="{{ team.title|escape }}" size=40 maxsize=40><br>
 		<hr class="space">
 		<p class="submit"><input type="submit" value="Update"></p>
 	</form>
@@ -44,7 +47,8 @@ $(document).ready(function(){
 	<form action="/team/add-member" method="post" id="memberform">
 		<input type="hidden" name="team" value="{{ team.key }}"/>
 		<label for="email">Email address <span class="quiet">(must be a valid Gmail login address)</span></label><br>
-		<input name="email" type="text" size=40>
+		<input class="email required"name="email" id="email" type="text" size=40><br>
+		<hr class="space">
 		<input type="submit" value="Add Collaborator">
 	</form>
 {% endblock %}

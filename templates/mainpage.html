@@ -4,6 +4,9 @@
 
 {% block script %}
 $(document).ready(function(){
+	$.validator.setDefaults({errorClass: "invalid"})
+	$("#add_project_form").validate();
+	$("#add_backlog_form").validate();
 	$('#team_selector').change(function(){
 		$('#set_current_team').trigger('submit');
 	});
@@ -34,13 +37,13 @@ $(document).ready(function(){
 	<hr>
 	{% if alert %}
 		<hr class="space">
-		<div class="success">{{ alert }}</div>
+		<div class="{{ alert_type }}">{{ alert }}</div>
 	{% endif %}
 	<form action="/project/new" method="post" id="add_project_form">
 		<legend><span class="large">Add a new project</span></legend>
 		<fieldset>
 		<label for="title">Enter a project title</label><br> 
-		<input type="text" class="text" name="title" size=40 maxsize=40><br>
+		<input type="text" class="text required" name="title" id="title" size=40 maxsize=40><br>
 		<hr class="space">
 		<hr>
 		<input type="submit" value="Create a New Project"> or <a href="#" class="action" id="cancel_add_project">Cancel</a>
@@ -50,9 +53,9 @@ $(document).ready(function(){
 		<legend><span class="large">Add a new backlog</span></legend>
 		<fieldset>
 		<label for="title">Enter a backlog title</label><br>
-		<input type="text"  class="text" name="title" size=40 maxsize=40><br>
-		<label>Select the backlog owner</label><br>
-		<select name="owner">
+		<input type="text required"  class="text required" name="title" id="title" size=40 maxsize=40><br>
+		<label for="owner">Select the backlog owner</label><br>
+		<select name="owner" id="owner">
 			{% for user in users %}
 				<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
 			{% endfor %}
