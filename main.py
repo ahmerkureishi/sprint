@@ -2,17 +2,6 @@
 #
 # Copyright 2008 Todd A. Webb
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 """A collaborative Scrum management application built on Google App Engine."""
 
@@ -40,8 +29,8 @@ class BaseRequestHandler(webapp.RequestHandler):
 	the current user in the 'user' variable and the current webapp request
 	in the 'request' variable.
 
-	Adapted from tasks.py by Bret Taylor, Google, Inc. under the same license 
-	terms as noted above.
+	Adapted from tasks.py by Bret Taylor, Google, Inc. under the Apache License 
+	version 2.0.
 	"""
 	def generate(self, template_name, template_values={}):
 		teams_query = TeamMember.gql("WHERE user = :1", users.GetCurrentUser())
