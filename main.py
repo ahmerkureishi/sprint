@@ -344,29 +344,37 @@ class AddMemberAction(BaseRequestHandler):
 class EditItemAction(BaseRequestHandler):
 	def post(self):
 		item_key = self.request.get('id')
+		
 		if item_key:
 			item = Item.get(item_key)
-			is_new_item = False
+			new_item = False
 		else:
 			item = Item(title = " ")
-			is_new_item = True
+			new_item = True
+		
 		if self.request.get('title'):
 			item.title = self.request.get('title')
-		if self.request.get('backlog_id'):
+		
+		if item.backlog:
+			backlog_item = True
+		elif self.request.get('backlog_id'):
 			item.backlog = Backlog.get(self.request.get('backlog_id'))
-			is_backlog_item = True
+			backlog_item = True
 		else:
-			is_backlog_item = False
+			backlog_item = False
+		
 		if self.request.get('sprint_id'):
 			item.sprint = Sprint.get(self.request.get('sprint_id'))
+		
 		if self.request.get('owner'):
 			if self.request.get('owner') == "none":
 				item.owner = None
 			else:
 				item.owner = AppUser.get(self.request.get('owner'))
+		
 		if self.request.get('estimate'):
 			if item.estimate != int(self.request.get('estimate')):
-				if not is_new_item:
+				if not new_item:
 					previous_estimate = item.estimate
 				else:
 					previous_estimate = 0
@@ -377,7 +385,7 @@ class EditItemAction(BaseRequestHandler):
 				item.last_estimate_date = today
 				item.last_estimate_by = AppUser.getCurrentUser()
 				
-				if not is_backlog_item:
+				if not backlog_item:
 					item.sprint.update_snapshot(delta)
 		
 		item.put()

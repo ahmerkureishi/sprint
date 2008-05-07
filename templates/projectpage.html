@@ -93,10 +93,10 @@ $(document).ready(function(){
 	</tbody>
 	</table>
 <div>
-<a href="#" class="add action">Add a new item</a>
+<a href="#" class="add action">Add a new task</a>
 <form action="/item/new" method="post" accept-charset="utf-8" class="add_item_form item_form">
 	<fieldset>
-	<label for="itemtitle">Enter a sprint backlog item</label><br>
+	<label for="itemtitle">Enter a sprint backlog task</label><br>
 			<textarea class="required" name="title" id="itemtitle" style="width:600px"></textarea><br>
 	<label for="owner">Owner</label><br>
 	<select name="owner" id="owner">
@@ -104,13 +104,13 @@ $(document).ready(function(){
 		<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
 	{% endfor %}
 	</select><br>
-	<label for="estimate">Estimate</label><br>
+	<label for="estimate">Estimate of effort</label><br>
 	<input type="text" class="text required" name="estimate" id="estimate" value="0" size="3" maxlength=3> hours<br>
 	<hr class="space">
 	<hr>
 	<input type="hidden" name="sprint_id" value="{{ sprint.key }}">
 	<input type="hidden" name="next" value="/project?id={{ project.key }}">
-	<input type="submit" value="Add this item"> or <a href="#" class="cancel action">I'm done adding items</a>
+	<input type="submit" value="Add this task"> or <a href="#" class="cancel action">I'm done adding tasks</a>
 	</fieldset>
 </form>
 </div>
@@ -119,12 +119,12 @@ $(document).ready(function(){
 <table class="items last">
 <tbody>
 {% if not sprint.backlog_items %}
-<p>There are no backlog items assigned to this sprint. You can assign backlog items to this sprint on a backlog page.</p>
+<p>There are no product backlog items assigned to this sprint. You can assign product backlog items to this sprint from a product backlog page.</p>
 {% else %}
 	{% for item in sprint.backlog_items %}
 		<tr><td class="bullet">•</td>
 			<td class="title"><strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong>: {{ item.title }}</td>
-			<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
+			<td class="estimate"><strong>{{ item.estimate }} ideal days</strong></td>
 			<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
 			<td class="action">&nbsp;</td>
 		</tr>

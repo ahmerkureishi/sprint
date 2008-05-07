@@ -52,7 +52,7 @@ $(document).ready(function(){
 				<input type="submit" value="Update"> or <a href="#" class="action">Cancel</a>
 			</form>
 		</td>
-		<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
+		<td class="estimate"><strong>{{ item.estimate }} ideal days</strong></td>
 		<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
 		<td class="action"><a href="/item?id={{ item.key }}&next=/backlog?id={{ backlog.key }}" class="action">edit</a></td>
 	</tr>
@@ -72,8 +72,8 @@ $(document).ready(function(){
 			<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
 			{% endfor %}
 		</select><br>
-	<label for="estimate">Estimate</label><br>
-		<input type="text" class="text" name="estimate" value="" size=3 maxlength=3> hours<br>
+	<label for="estimate">Estimate of effort</label><br>
+		<input type="text" class="text" name="estimate" value="" size=3 maxlength=3> ideal days<br>
 	<hr class="space">
 	<hr>
 	<input type="hidden" name="backlog_id" value="{{ backlog.key }}">
