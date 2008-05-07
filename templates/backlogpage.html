@@ -54,7 +54,7 @@ $(document).ready(function(){
 		</td>
 		<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
 		<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
-		<td class="action"><a href="/item?id={{ item.key }}" class="action">edit</a></td>
+		<td class="action"><a href="/item?id={{ item.key }}&next=/backlog?id={{ backlog.key }}" class="action">edit</a></td>
 	</tr>
 {% endfor %}
 </tbody>

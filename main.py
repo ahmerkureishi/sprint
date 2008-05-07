@@ -305,6 +305,18 @@ class CreateBacklogAction(BaseRequestHandler):
 		self.redirect('/')
 
 
+class DeleteItemAction(BaseRequestHandler):
+	def post(self):
+		item_key = self.request.get('id')
+		item = Item.get(item_key)
+		delta = 0 - item.estimate
+		if not item.backlog:
+			item.sprint.update_snapshot(delta)
+		item.delete()
+		
+		self.redirect(self.request.get('next'))
+
+
 class SetCurrentTeamAction(BaseRequestHandler):
 	def post(self):
 		app_user = AppUser.getCurrentUser()
@@ -370,27 +382,14 @@ class EditItemAction(BaseRequestHandler):
 				else:
 					previous_estimate = 0
 				item.estimate = int(self.request.get('estimate'))
+				delta = item.estimate - previous_estimate
+				
 				today = datetime.date.today()
 				item.last_estimate_date = today
 				item.last_estimate_by = AppUser.getCurrentUser()
+				
 				if not is_backlog_item:
-					# Update the Sprint Snapshot or create a new Snapshot if it is a new day
-					query_datetime = datetime.datetime.combine(today,datetime.time().min)
-					snap_query = SprintSnap.gql("WHERE sprint = :1 AND date = :2", item.sprint, query_datetime)
-					snap = snap_query.get()
-					if snap:
-						snap.estimate += (item.estimate - previous_estimate)
-						snap.put()
-					else:
-						previous_snap_query = SprintSnap.gql("WHERE sprint = :1 AND date < :2 ORDER BY date DESC", 
-							item.sprint, query_datetime)
-						previous_snap = previous_snap_query.get()
-						if previous_snap:
-							todays_estimate = previous_snap.estimate + (item.estimate - previous_estimate)
-						else:
-							todays_estimate = item.estimate
-						snap = SprintSnap(sprint=item.sprint, estimate=todays_estimate)
-						snap.put()
+					item.sprint.update_snapshot(delta)
 		
 		item.put()
 		
@@ -405,9 +404,6 @@ class EditItemAction(BaseRequestHandler):
 			self.redirect('/project?id=' + project_id )
 		else:
 			self.redirect('/')
-
-
-# Need to add a delete item action. This will also need to update the snapshot baseline to remove the 
 
 
 class Team(db.Model):
@@ -480,6 +476,30 @@ class Sprint(db.Model):
 	project = db.ReferenceProperty(Project)
 	start_date = db.DateProperty()
 	end_date = db.DateProperty()
+	
+	def get_current_snapshot(self):
+		today = datetime.date.today()
+		query_datetime = datetime.datetime.combine(today,datetime.time().min)
+		snap_query = SprintSnap.gql("WHERE sprint = :1 AND date <= :2 ORDER BY date DESC", self, query_datetime)
+		return snap_query.get()
+	
+	def update_snapshot(self, delta):
+		today = datetime.date.today()
+		query_datetime = datetime.datetime.combine(today,datetime.time().min)
+		snap_query = SprintSnap.gql("WHERE sprint = :1 AND date = :2", self, query_datetime)
+		snap = snap_query.get()
+		if snap:
+			snap.estimate += delta
+			snap.put()
+		else:
+			snap_query = SprintSnap.gql("WHERE sprint = :1 AND date < :2 ORDER BY date DESC", self, query_datetime)
+			snap = snap_query.get()
+			if snap:
+				todays_estimate = snap.estimate + delta
+			else:
+				todays_estimate = delta
+			snap = SprintSnap(sprint=self, estimate=todays_estimate)
+			snap.put()
 
 
 class SprintSnap(db.Model):
@@ -521,6 +541,7 @@ def main():
 	apps_binding.append(('/help', HelpPage))
 	apps_binding.append(('/team/set-current', SetCurrentTeamAction))
 	apps_binding.append(('/team/add-member', AddMemberAction))
+	apps_binding.append(('/item/delete', DeleteItemAction))
 
 	application = webapp.WSGIApplication(apps_binding, debug=_DEBUG)
 	wsgiref.handlers.CGIHandler().run(application)

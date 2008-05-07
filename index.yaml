@@ -10,13 +10,13 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 23 times in query history.
+# Used 28 times in query history.
 - kind: Backlog
   properties:
   - name: team
   - name: title
 
-# Used 27 times in query history.
+# Used 36 times in query history.
 - kind: Item
   properties:
   - name: backlog
@@ -24,7 +24,7 @@ indexes:
   - name: sprint
   - name: title
 
-# Used 51 times in query history.
+# Used 72 times in query history.
 - kind: Item
   properties:
   - name: backlog
@@ -56,7 +56,7 @@ indexes:
   - name: owner
   - name: title
 
-# Used 51 times in query history.
+# Used 72 times in query history.
 - kind: Item
   properties:
   - name: sprint
@@ -76,13 +76,13 @@ indexes:
   - name: user
   - name: title
 
-# Used 38 times in query history.
+# Used 43 times in query history.
 - kind: Project
   properties:
   - name: team
   - name: title
 
-# Used 66 times in query history.
+# Used 82 times in query history.
 - kind: Sprint
   properties:
   - name: project
@@ -107,20 +107,20 @@ indexes:
   - name: date
   - name: sprint
 
-# Used 99 times in query history.
+# Used 141 times in query history.
 - kind: SprintSnap
   properties:
   - name: sprint
   - name: date
 
-# Used 3 times in query history.
+# Used 4 times in query history.
 - kind: SprintSnap
   properties:
   - name: sprint
   - name: date
     direction: desc
 
-# Used 121 times in query history.
+# Used 167 times in query history.
 - kind: TeamMember
   properties:
   - name: owner
@@ -133,13 +133,13 @@ indexes:
   - name: team
   - name: user
 
-# Used 10 times in query history.
+# Used 11 times in query history.
 - kind: TeamMember
   properties:
   - name: owner
   - name: user
 
-# Used 3 times in query history.
+# Used 4 times in query history.
 - kind: TeamMember
   properties:
   - name: team

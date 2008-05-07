@@ -47,7 +47,7 @@ $(document).ready(function(){
 	<form action="/team/add-member" method="post" id="memberform">
 		<input type="hidden" name="team" value="{{ team.key }}"/>
 		<label for="email">Email address <span class="quiet">(must be a valid Gmail login address)</span></label><br>
-		<input class="email required"name="email" id="email" type="text" size=40><br>
+		<input class="email text required"name="email" id="email" type="text" size=40><br>
 		<hr class="space">
 		<input type="submit" value="Add Collaborator">
 	</form>

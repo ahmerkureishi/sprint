@@ -4,8 +4,11 @@
 
 {% block script %}
 $(document).ready(function(){	
-	$('#team_selector').change(function(){
-		$('#set_current_team').trigger('submit');
+	$("#team_selector").change(function(){
+		$("#set_current_team").trigger("submit");
+	});
+	$("#delete").click(function(){
+		$("#delete_item").trigger("submit")
 	});
 });
 {% endblock %}
@@ -29,10 +32,14 @@ $(document).ready(function(){
 		<input type="text" class="text" name="estimate" value="{{ item.estimate }}" size=3 maxlength=3> hours (Last updated: {{ item.last_estimate_date|date:"M j, Y" }} by {{ item.last_estimate_by.first_name}} {{ item.last_estimate_by.last_name}})<br>
 	<hr class="space">
 	<hr>
-	{% if next %}
-	<input type="hidden" name="next" value="{{ next }}">
-	{% endif %}
+	{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 	<input type="submit" value="Save Changes">
 	</fieldset>
 </form>
+<form action="/item/delete" method="post" accept-charset="utf-8" id="delete_item">
+	<input type="hidden" name="id" value="{{ item.key }}" id="id">
+	{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+</form>
+<a href="#" class="action" id="delete">Delete this item</a>
+
 {% endblock %}
