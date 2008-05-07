@@ -32,7 +32,7 @@ $(document).ready(function(){
 	<hr class="space">
 	<div class="{{ alert_type }}">{{ alert }}</div>
 {% endif %}
-<div>
+<div id="sprint_form_div">
 	<a href="#" class="add action">Add a new sprint</a>
 	<form class="add_item_form" id="sprint_form" action="/sprint/new" method="post">
 		<fieldset>
@@ -62,7 +62,8 @@ $(document).ready(function(){
 		&amp;chxr=1,{{ sprint.chart_limits }}
 		&amp;chs=400x200
 		&amp;chco=0077CC
-		&amp;chm=B,E6F2FA,0,0,0|o,000099,0,0.0,8.0|x,000099,0,{{ sprint.chart_total_data_points }}.0,8.0" /></div>
+		&amp;chm=B,E6F2FA,0,0,0|o,000099,0,0.0,8.0|x,000099,0,{{ sprint.chart_total_data_points }}.0,8.0" />
+	</div>
 	<p><h3 style="display:inline">{{ sprint.title }}</h3>
 		<span class="quiet">  {{ sprint.start_date|date:"F j, Y"}} to {{ sprint.end_date|date:"F j, Y"}}</span>&nbsp;
 		<a href="#" class="sparkline" title="Click to view burndown chart."><img src="http://chart.apis.google.com/chart?cht=ls

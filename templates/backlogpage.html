@@ -40,7 +40,7 @@ $(document).ready(function(){
 	<tr><td class="bullet">•</td>
 		<td class="title">{{ item.title }}</td>
 		<td class="assign">
-			<a href="#" class="editable">{% if item.sprint %} {{ item.sprint.project.title }} –
+			<a href="#" title="Click to edit" class="editable">{% if item.sprint %} {{ item.sprint.project.title }} –
 				                       {{ item.sprint.title }} {% else %} Not Assigned to a Sprint {% endif %}</a>
 			<form action="/item/update?id={{ item.key }}" method="post" style="display:inline-block">
 				<select name="sprint_id">
