@@ -72,6 +72,7 @@ $(document).ready(function(){
 		{% for project in user_projects %}
 		<h2>{{ project.title }}</h2>
 			{% for sprint in project.sprints %}
+				{% if not sprint.complete %}
 				<p><h3 style="display:inline">{{ sprint.title }}</h3>
 					<span class="quiet">  {{ sprint.start_date|date:"F j, Y"}} to {{ sprint.end_date|date:"F j, Y"}}</span></p>
 				<table class="items last">
@@ -86,6 +87,7 @@ $(document).ready(function(){
 				{% endfor %}
 				</tbody>
 				</table>
+				{% endif %}
 			{% endfor %}
 		{% endfor %}
 	{% endif %}
@@ -96,15 +98,23 @@ $(document).ready(function(){
 	<hr>
 	<h2 class="bottom">Projects</h2>
 	{% for project in projects %}
-		<div><a href="/project?id={{ project.key }}" class="large nav_list">{{ project.title }}</a></div>
+		{% if not project.complete %}
+		<div><a href="/project?id={{ project.key }}" class="nav_list">{{ project.title }}</a></div>
+		{% endif %}
 	{% endfor %}
 	<a href="#" class="action" id="new_project">Add a new project</a>
 	<hr class="space">
 	<h2 class="bottom">Backlogs</h2>
 	{% for backlog in backlogs %}
-		<div><a href="/backlog?id={{ backlog.key }}"  class="large nav_list">{{ backlog.title }}</a> 
+		<div><a href="/backlog?id={{ backlog.key }}"  class="nav_list">{{ backlog.title }}</a> 
 			: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</div>
 	{% endfor %}
-	<a href="#" class="action" id="new_backlog">Add a new backlog</a>
+	<p><a href="#" class="action" id="new_backlog">Add a new backlog</a></p>
+	<h2 class="bottom quiet">Archived Projects</h2>
+	{% for project in projects %}
+		{% if project.complete %}
+		<div><a href="/project?id={{ project.key }}" class="nav_list">{{ project.title }}</a></div>
+		{% endif %}
+	{% endfor %}	
 </div>
 {% endblock %}

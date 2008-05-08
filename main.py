@@ -80,7 +80,7 @@ class MainPage(BaseRequestHandler):
 				if not sprint.items:
 					project.sprints.remove(sprint)
 		for project in user_projects[:]:
-			if not project.sprints:
+			if not project.sprints or project.complete:
 				user_projects.remove(project)
 
 		backlog_query = Backlog.gql("WHERE team = :1 ORDER BY title", AppUser.getCurrentUser().current_team)
@@ -132,7 +132,7 @@ class UserPage(BaseRequestHandler):
 		alert_type = app_user.alert_type
 		app_user.alert_message = None
 		app_user.put()
-		
+				
 		self.generate('userpage.html', {
 			'team': team,
 			'team_members': team_members,
@@ -174,8 +174,14 @@ class ProjectPage(BaseRequestHandler):
 		alert_type = app_user.alert_type
 		app_user.alert_message = None
 		app_user.put()
+		
+		if app_user.current_team.current_user_is_owner():
+			team_owner = True
+		else:
+			team_owner = False
 	
 		self.generate('projectpage.html', {
+			'team_owner': team_owner,
 			'project': project, 
 			'users': AppUser.getCurrentUser().current_team.get_all_members(),
 			'alert': alert,
@@ -341,6 +347,24 @@ class AddMemberAction(BaseRequestHandler):
 	self.redirect('/user')
 
 
+class EditProjectAction(BaseRequestHandler):
+	def post(self):
+		project = Project.get(self.request.get('id'))
+		project.title = self.request.get('title')
+		project.complete = bool(self.request.get('complete'))
+		project.put()
+		self.redirect('/project?id=' + str(project.key()))
+
+
+class EditSprintAction(BaseRequestHandler):
+	def post(self):
+		sprint = Sprint.get(self.request.get('id'))
+		sprint.title = self.request.get('title')
+		sprint.complete = bool(self.request.get('complete'))
+		sprint.put()
+		self.redirect('/project?id=' + str(sprint.project.key()))
+
+
 class EditItemAction(BaseRequestHandler):
 	def post(self):
 		item_key = self.request.get('id')
@@ -466,13 +490,15 @@ class TeamMember(db.Model):
 class Project(db.Model):
 	title = db.StringProperty()
 	team = db.ReferenceProperty(Team, required=True)
+	complete = db.BooleanProperty(default=False)
 
 
 class Sprint(db.Model):
-	title = db.StringProperty()
+	title = db.StringProperty(default="Sprint")
 	project = db.ReferenceProperty(Project)
 	start_date = db.DateProperty()
 	end_date = db.DateProperty()
+	complete = db.BooleanProperty(default=False)
 	
 	def get_current_snapshot(self):
 		today = datetime.date.today()
@@ -539,7 +565,9 @@ def main():
 	apps_binding.append(('/team/set-current', SetCurrentTeamAction))
 	apps_binding.append(('/team/add-member', AddMemberAction))
 	apps_binding.append(('/item/delete', DeleteItemAction))
-
+	apps_binding.append(('/sprint/update', EditSprintAction))
+	apps_binding.append(('/project/update', EditProjectAction))
+		
 	application = webapp.WSGIApplication(apps_binding, debug=_DEBUG)
 	wsgiref.handlers.CGIHandler().run(application)
 

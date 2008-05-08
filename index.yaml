@@ -16,25 +16,25 @@ indexes:
   - name: team
   - name: title
 
+# Used 8 times in query history.
+- kind: Item
+  properties:
+  - name: backlog
+  - name: owner
+  - name: sprint
+  - name: title
+
+# Used 62 times in query history.
+- kind: Item
+  properties:
+  - name: backlog
+  - name: sprint
+  - name: title
+
 # Used 3 times in query history.
 - kind: Item
   properties:
   - name: backlog
-  - name: owner
-  - name: sprint
-  - name: title
-
-# Used 7 times in query history.
-- kind: Item
-  properties:
-  - name: backlog
-  - name: sprint
-  - name: title
-
-# Used once in query history.
-- kind: Item
-  properties:
-  - name: backlog
   - name: title
 
 # Unused in query history -- copied from input.
@@ -56,7 +56,7 @@ indexes:
   - name: owner
   - name: title
 
-# Used 7 times in query history.
+# Used 62 times in query history.
 - kind: Item
   properties:
   - name: sprint
@@ -76,13 +76,13 @@ indexes:
   - name: user
   - name: title
 
-# Used 7 times in query history.
+# Used 9 times in query history.
 - kind: Project
   properties:
   - name: team
   - name: title
 
-# Used 15 times in query history.
+# Used 51 times in query history.
 - kind: Sprint
   properties:
   - name: project
@@ -101,32 +101,32 @@ indexes:
   - name: project
   - name: title
 
-# Used 6 times in query history.
+# Used 4 times in query history.
 - kind: SprintSnap
   properties:
   - name: date
   - name: sprint
 
-# Used 13 times in query history.
+# Used 88 times in query history.
 - kind: SprintSnap
   properties:
   - name: sprint
   - name: date
 
-# Used once in query history.
+# Used 2 times in query history.
 - kind: SprintSnap
   properties:
   - name: sprint
   - name: date
     direction: desc
 
-# Used 19 times in query history.
+# Used 54 times in query history.
 - kind: TeamMember
   properties:
   - name: owner
   - name: team
 
-# Unused in query history -- copied from input.
+# Used 43 times in query history.
 - kind: TeamMember
   properties:
   - name: owner
