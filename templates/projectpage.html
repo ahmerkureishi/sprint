@@ -6,6 +6,9 @@
 $(document).ready(function(){	
 	$.validator.setDefaults({errorClass: "invalid"})
 	$("#sprint_form").validate();
+{% if project.complete %}
+	$("a.action").hide();
+{% endif %}
 	$("#team_selector").change(function(){
 		$("#set_current_team").trigger("submit");
 	});
@@ -20,7 +23,7 @@ $(document).ready(function(){
 	});
 	$("div.burndown").hide();
 	$("a.sparkline").click(function(){
-		$(this).parent("div.sprint_header").children("div.burndown").slideToggle(500);
+		$(this).parents("div.sprint_header").children("div.burndown").slideToggle(500);
 	});
 	$("div.sprint_update").hide();
 	$("a.sprint_edit").click(function(){
@@ -41,14 +44,14 @@ $(document).ready(function(){
 
 {% block content %}
 <div class="project_hd">
-	<h1 style="display:inline;">{{ project.title }}</h1>{% if team_owner %}&nbsp;<a href="#" class="action project_edit">edit</a>{% endif %}
+	<h1 style="display:inline;">{{ project.title }}</h1>{% if team_owner %}&nbsp;<a href="#" class="project_edit immutable_action">edit</a>{% endif %}
 </div>
 <div class="project_update">
 	<form action="/project/update" method="post">
 		<input type="text" class="text" name="title" value="{{ project.title }}" size=40 maxsize=40>
 		<input type="checkbox" name="complete" {% if project.complete %}checked{% endif %}>Complete&nbsp;
 		<input type="hidden" name="id" value="{{ project.key }}">
-		<input type="submit" value="Update"> or <a href="#" class="project_cancel action">Cancel</a>
+		<input type="submit" value="Update"> or <a href="#" class="project_cancel immutable_action">Cancel</a>
 	</form>
 </div>
 
@@ -113,7 +116,7 @@ $(document).ready(function(){
 	</div>
 	{% if sprint.complete %}<hr class="space">{% endif %}
 </div>
-{% if not sprint.complete %}
+{% if not sprint.complete or project.complete %}
 <table class="items last">
 	<tbody>
 	{% for item in sprint.items %}

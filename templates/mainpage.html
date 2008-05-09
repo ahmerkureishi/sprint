@@ -99,22 +99,31 @@ $(document).ready(function(){
 	<h2 class="bottom">Projects</h2>
 	{% for project in projects %}
 		{% if not project.complete %}
-		<div><a href="/project?id={{ project.key }}" class="nav_list">{{ project.title }}</a></div>
+		<div><a href="/project?id={{ project.key }}" title="{{ project.title }}" class="large nav_list">{{ project.title|truncate_dot:30 }}</a></div>
 		{% endif %}
 	{% endfor %}
-	<a href="#" class="action" id="new_project">Add a new project</a>
-	<hr class="space">
+	<p><a href="#" class="action" id="new_project">Add a new project</a></p>
 	<h2 class="bottom">Backlogs</h2>
 	{% for backlog in backlogs %}
-		<div><a href="/backlog?id={{ backlog.key }}"  class="nav_list">{{ backlog.title }}</a> 
+		<div><a href="/backlog?id={{ backlog.key }}" title="{{ backlog.title }}" class="large nav_list">{{ backlog.title|truncate_dot:20 }}</a> 
 			: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</div>
 	{% endfor %}
 	<p><a href="#" class="action" id="new_backlog">Add a new backlog</a></p>
-	<h2 class="bottom quiet">Archived Projects</h2>
+	<hr>
+	<h4 class="quiet">Project Archive</h4>
 	{% for project in projects %}
 		{% if project.complete %}
-		<div><a href="/project?id={{ project.key }}" class="nav_list">{{ project.title }}</a></div>
+		<div><a href="/project?id={{ project.key }}" title="{{ project.title }}" class="nav_list">{{ project.title|truncate_dot:40 }}</a></div>
 		{% endif %}
-	{% endfor %}	
+	{% endfor %}
+	<hr class="space">
+	<h4 class="quiet">Backlog Archive</h4>
+	{% for backlog in backlogs %}
+		{% if backlog.complete %}
+		<div><a href="/backlog?id={{ backlog.key }}" title="{{ backlog.title }}" class="nav_list">{{ backlog.title|truncate_dot:40 }}</a></div>
+		{% endif %}
+	{% endfor %}
+	<hr class="space">
+	
 </div>
 {% endblock %}

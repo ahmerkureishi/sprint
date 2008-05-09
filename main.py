@@ -22,6 +22,8 @@ import wsgiref.handlers
 # Set to true if we want to have our webapp print stack traces, etc
 _DEBUG = True
 
+template.register_template_library('templatefilters')
+
 class BaseRequestHandler(webapp.RequestHandler):
 	"""Supplies a common template generation function.
 
@@ -89,6 +91,7 @@ class MainPage(BaseRequestHandler):
 		alert = app_user.alert_message
 		alert_type = app_user.alert_type
 		app_user.alert_message = None
+		app_user.alert_type = None
 		app_user.put()
 
 		self.generate('mainpage.html', {
@@ -131,6 +134,7 @@ class UserPage(BaseRequestHandler):
 		alert = app_user.alert_message
 		alert_type = app_user.alert_type
 		app_user.alert_message = None
+		app_user.alert_type = None
 		app_user.put()
 				
 		self.generate('userpage.html', {
@@ -173,6 +177,7 @@ class ProjectPage(BaseRequestHandler):
 		alert = app_user.alert_message
 		alert_type = app_user.alert_type
 		app_user.alert_message = None
+		app_user.alert_type = None
 		app_user.put()
 		
 		if app_user.current_team.current_user_is_owner():
@@ -535,6 +540,7 @@ class Backlog(db.Model):
 	title = db.StringProperty()
 	owner = db.ReferenceProperty(AppUser)
 	team = db.ReferenceProperty(Team, required=True)
+	complete = db.BooleanProperty(default=False)
 
 
 class Item(db.Model):

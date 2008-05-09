@@ -10,13 +10,13 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
-# Used 6 times in query history.
+# Used 85 times in query history.
 - kind: Backlog
   properties:
   - name: team
   - name: title
 
-# Used 8 times in query history.
+# Used 172 times in query history.
 - kind: Item
   properties:
   - name: backlog
@@ -24,14 +24,14 @@ indexes:
   - name: sprint
   - name: title
 
-# Used 62 times in query history.
+# Used 238 times in query history.
 - kind: Item
   properties:
   - name: backlog
   - name: sprint
   - name: title
 
-# Used 3 times in query history.
+# Used 7 times in query history.
 - kind: Item
   properties:
   - name: backlog
@@ -56,7 +56,7 @@ indexes:
   - name: owner
   - name: title
 
-# Used 62 times in query history.
+# Used 238 times in query history.
 - kind: Item
   properties:
   - name: sprint
@@ -76,13 +76,13 @@ indexes:
   - name: user
   - name: title
 
-# Used 9 times in query history.
+# Used 92 times in query history.
 - kind: Project
   properties:
   - name: team
   - name: title
 
-# Used 51 times in query history.
+# Used 242 times in query history.
 - kind: Sprint
   properties:
   - name: project
@@ -101,45 +101,45 @@ indexes:
   - name: project
   - name: title
 
+# Used 9 times in query history.
+- kind: SprintSnap
+  properties:
+  - name: date
+  - name: sprint
+
+# Used 439 times in query history.
+- kind: SprintSnap
+  properties:
+  - name: sprint
+  - name: date
+
 # Used 4 times in query history.
-- kind: SprintSnap
-  properties:
-  - name: date
-  - name: sprint
-
-# Used 88 times in query history.
-- kind: SprintSnap
-  properties:
-  - name: sprint
-  - name: date
-
-# Used 2 times in query history.
 - kind: SprintSnap
   properties:
   - name: sprint
   - name: date
     direction: desc
 
-# Used 54 times in query history.
+# Used 245 times in query history.
 - kind: TeamMember
   properties:
   - name: owner
   - name: team
 
-# Used 43 times in query history.
+# Used 143 times in query history.
 - kind: TeamMember
   properties:
   - name: owner
   - name: team
+  - name: user
+
+# Used 6 times in query history.
+- kind: TeamMember
+  properties:
+  - name: owner
   - name: user
 
 # Used 2 times in query history.
-- kind: TeamMember
-  properties:
-  - name: owner
-  - name: user
-
-# Unused in query history -- copied from input.
 - kind: TeamMember
   properties:
   - name: team
