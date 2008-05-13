@@ -117,6 +117,7 @@ class UserPage(BaseRequestHandler):
 			app_user = AppUser()
 			app_user.user = users.GetCurrentUser()
 			app_user.current_team = team
+			app_user.welcome = True
 			app_user.alert_message = "Please update your profile."
 			app_user.alert_type = "success"
 			app_user.put()
@@ -136,7 +137,7 @@ class UserPage(BaseRequestHandler):
 		app_user.alert_message = None
 		app_user.alert_type = None
 		app_user.put()
-				
+		
 		self.generate('userpage.html', {
 			'team': team,
 			'team_members': team_members,
@@ -238,6 +239,12 @@ class HelpPage(BaseRequestHandler):
 		self.generate('helppage.html', {});
 
 
+class WelcomePage(BaseRequestHandler):
+	'''Displays the help page.'''
+	def get(self):
+		self.generate('welcomepage.html', {});
+
+
 class UpdateUserAction(BaseRequestHandler):
 	def post(self):
 		'''Edits the user profile.'''
@@ -256,8 +263,13 @@ class UpdateUserAction(BaseRequestHandler):
 
 		user.put()
 		team.put()
-
-		self.redirect('/user')
+		
+		if user.welcome:
+			user.welcome = False
+			user.put()
+			self.redirect('/welcome')
+		else:
+			self.redirect('/user')
 
 
 class CreateProjectAction(BaseRequestHandler):
@@ -470,6 +482,7 @@ class AppUser(db.Model):
 	alert_message = db.StringProperty()
 	alert_type = db.StringProperty()
 	current_team = db.ReferenceProperty(Team)
+	welcome = db.BooleanProperty(default=True)
 	
 	@staticmethod
 	def getCurrentUser():
@@ -573,6 +586,7 @@ def main():
 	apps_binding.append(('/item/delete', DeleteItemAction))
 	apps_binding.append(('/sprint/update', EditSprintAction))
 	apps_binding.append(('/project/update', EditProjectAction))
+	apps_binding.append(('/welcome', WelcomePage))
 		
 	application = webapp.WSGIApplication(apps_binding, debug=_DEBUG)
 	wsgiref.handlers.CGIHandler().run(application)

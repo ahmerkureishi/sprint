@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Sprint - Welcome{% endblock %}
+
+{% block script %}
+$(document).ready(function(){	
+	$('#team_selector').change(function(){
+		$('#set_current_team').trigger('submit');
+	});
+});
+{% endblock %}
+
+{% block content %}
+<h1>Welcome to Sprint</h1>
+<hr>
+<center><h3><a href="/">Start by creating a product backlog or project from the dashboard</a></h3>
+  <img src="../static/images/create.jpg" width="247" height="174" alt="Create" /></center>
+<hr>
+<center><h3 class="quiet">Sprint is a simple project management tool for agile teams.</h3></center>
+
+<h3 class="quiet">Use Sprint to...</h3>
+
+<table>
+  <tr>
+    <td><center><img src="../static/images/backlog.jpg" width="280" height="79" alt="Backlog" />
+      <h4 class="bottom">Manage Product Backlogs</h4>
+      Create and edit backlog items, assign to a sprint, update backlog item effort estimates</center></td>
+    <td><center><img src="../static/images/projects.jpg" width="280" height="85" alt="Projects" />
+      <h4 class="bottom">Manage Projects and Sprints</h4>
+      Create and edit sprints and tasks, view burndown charts, update task effort estimates</center></td>
+    <td><center><img src="../static/images/dashboard.jpg" width="280" height="95" alt="Dashboard" />
+      <h4 class="bottom">Easily Update Effort Estimates</h4>
+      View your assigned tasks on the dashboard, easily identify and edit tasks that need new estimates</center></td>
+  </tr>
+</table>
+
+{% endblock %}
