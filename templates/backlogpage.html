@@ -1,61 +1,61 @@
 {% extends "base.html" %}
 
-{% block title %}Sprint - Backlogs : {{ backlog.title }}{% endblock %}
+{% block title %}Sprint - Backlogs : {{ backlog.title|escape }}{% endblock %}
 
 {% block script %}
 $(document).ready(function(){
-	$('#team_selector').change(function(){
-		$('#set_current_team').trigger('submit');
-	});
-	
-	$("td.assign > form").hide();
-	$("td.assign > a.editable").click(function(){
-		$(this).siblings().show();
-		$(this).hide();
-	});
-	$("td.assign > form a").click(function(){
-		$(this).parent("form").hide();
-		$(this).parent("form").siblings("a").show();
-	});
+  $('#team_selector').change(function(){
+    $('#set_current_team').trigger('submit');
+  });
+  
+  $("td.assign > form").hide();
+  $("td.assign > a.editable").click(function(){
+    $(this).siblings().show();
+    $(this).hide();
+  });
+  $("td.assign > form a").click(function(){
+    $(this).parent("form").hide();
+    $(this).parent("form").siblings("a").show();
+  });
 
-	$('#add_item_form').hide();
-	$('#add').click(function(){
-		$('#add_item_form').slideDown(500);
-		$(this).slideUp(500);
-	});
-	$('#cancel').click(function(){
-		$('#add_item_form').slideUp(500);
-		$('#add').slideDown(500);
-	});
+  $('#add_item_form').hide();
+  $('#add').click(function(){
+    $('#add_item_form').slideDown(500);
+    $(this).slideUp(500);
+  });
+  $('#cancel').click(function(){
+    $('#add_item_form').slideUp(500);
+    $('#add').slideDown(500);
+  });
 });
 
 {% endblock %}
 
 {% block content %}
-<h1 style="display:inline">{{ backlog.title }}</h1> <span class="quiet large">{{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</span>
+<h1 style="display:inline">{{ backlog.title|escape }}</h1> <span class="quiet large">{{ backlog.owner.first_name|escape }} {{ backlog.owner.last_name|escape }}</span>
 <hr class="space">
 <table class="items last">
 <tbody>
 {% for item in items %}
-	<tr><td class="bullet">•</td>
-		<td class="title">{{ item.title }}</td>
-		<td class="assign">
-			<a href="#" title="Click to edit" class="editable">{% if item.sprint %} {{ item.sprint.project.title }} –
-				                       {{ item.sprint.title }} {% else %} Not Assigned to a Sprint {% endif %}</a>
-			<form action="/item/update?id={{ item.key }}" method="post" style="display:inline-block">
-				<select name="sprint_id">
-					{% for sprint in sprints %}
-					<option {% ifequal item.sprint.key sprint.key %}selected="selected"{% endifequal %}value="{{ sprint.key }}">
-						{{ sprint.project.title }} : {{ sprint.title }}</option>
-					{% endfor %}
-				</select><br>
-				<input type="submit" value="Update"> or <a href="#" class="action">Cancel</a>
-			</form>
-		</td>
-		<td class="estimate"><strong>{{ item.estimate }} ideal days</strong></td>
-		<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
-		<td class="action"><a href="/item?id={{ item.key }}&next=/backlog?id={{ backlog.key }}" class="action">edit</a></td>
-	</tr>
+  <tr><td class="bullet">•</td>
+    <td class="title">{{ item.title|escape }}</td>
+    <td class="assign">
+      <a href="#" title="Click to edit" class="editable">{% if item.sprint %} {{ item.sprint.project.title|escape }} –
+                               {{ item.sprint.title|escape }} {% else %} Not Assigned to a Sprint {% endif %}</a>
+      <form action="/item/update?id={{ item.key }}" method="post" name="assign_sprint" style="display:inline-block">
+        <select name="sprint_id">
+          {% for sprint in sprints %}
+          <option {% ifequal item.sprint.key sprint.key %}selected="selected"{% endifequal %}value="{{ sprint.key }}">
+            {{ sprint.project.title|escape }} : {{ sprint.title|escape }}</option>
+          {% endfor %}
+        </select><br>
+        <input type="submit" value="Update"> or <a href="#" class="action">Cancel</a>
+      </form>
+    </td>
+    <td class="estimate"><strong>{{ item.estimate }} ideal days</strong></td>
+    <td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
+    <td class="action"><a href="/item?id={{ item.key }}&next=/backlog?id={{ backlog.key }}" class="action">edit</a></td>
+  </tr>
 {% endfor %}
 </tbody>
 </table>
@@ -63,22 +63,22 @@ $(document).ready(function(){
 <a href="#" class="action" id="add">Add a new backlog item</a>
 
 <form action="/item/new" method="post" id="add_item_form">
-	<fieldset>
-	<label for="title">Enter a backlog item</label><br>
-		<textarea name="title" style="width:600px"></textarea><br>
-	<label for="owner">Owner</label><br>
-		<select name="owner">
-			{% for user in users %}
-			<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
-			{% endfor %}
-		</select><br>
-	<label for="estimate">Estimate of effort</label><br>
-		<input type="text" class="text" name="estimate" value="" size=3 maxlength=3> ideal days<br>
-	<hr class="space">
-	<hr>
-	<input type="hidden" name="backlog_id" value="{{ backlog.key }}">
-	<input type="hidden" name="next" value="/backlog?id={{ backlog.key }}">
-	<input type="submit" value="Add this item"> or <a href="#" class="action" id="cancel">I'm done adding items</a>
-	</fieldset>
+  <fieldset>
+  <label for="title">Enter a backlog item</label><br>
+    <textarea name="title" style="width:600px"></textarea><br>
+  <label for="owner">Owner</label><br>
+    <select name="owner">
+      {% for user in users %}
+      <option value="{{ user.key }}">{{ user.first_name|escape }} {{ user.last_name|escape }}</option>
+      {% endfor %}
+    </select><br>
+  <label for="estimate">Estimate of effort</label><br>
+    <input type="text" class="text" name="estimate" value="" size=3 maxlength=3> ideal days<br>
+  <hr class="space">
+  <hr>
+  <input type="hidden" name="backlog_id" value="{{ backlog.key }}">
+  <input type="hidden" name="next" value="/backlog?id={{ backlog.key }}">
+  <input type="submit" value="Add this item"> or <a href="#" class="action" id="cancel">I'm done adding items</a>
+  </fieldset>
 </form>
 {% endblock %}

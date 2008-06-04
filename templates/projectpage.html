@@ -1,91 +1,90 @@
 {% extends "base.html" %}
 
-{% block title %}Sprint - Projects: {{ project.title }}{% endblock %}
+{% block title %}Sprint - Projects: {{ project.title|escape }}{% endblock %}
 
 {% block script %}
-$(document).ready(function(){	
-	$.validator.setDefaults({errorClass: "invalid"})
-	$("#sprint_form").validate();
+$(document).ready(function(){  
+  $.validator.setDefaults({errorClass: "invalid"})
+  $("#sprint_form").validate();
 {% if project.complete %}
-	$("a.action").hide();
+  $("a.action").hide();
 {% endif %}
-	$("#team_selector").change(function(){
-		$("#set_current_team").trigger("submit");
-	});
-	$("form.add_item_form").hide();
-	$(".add").click(function(){
-		$(this).siblings("form.add_item_form").slideDown(500);
-		$(this).slideUp(500);
-	});
-	$(".cancel").click(function(){
-		$(this).parents("form").slideUp(500);
-		$(this).parents("form").siblings(".add").slideDown(500);
-	});
-	$("div.burndown").hide();
-	$("a.sparkline").click(function(){
-		$(this).parents("div.sprint_header").children("div.burndown").slideToggle(500);
-	});
-	$("div.sprint_update").hide();
-	$("a.sprint_edit").click(function(){
-		$(this).parent("div.sprint_hd").siblings("div.sprint_update").show();
-	});
-	$("a.sprint_cancel").click(function(){
-		$(this).parents("div.sprint_update").hide();
-	});
-	$("div.project_update").hide();
-	$("a.project_edit").click(function(){
-		$(this).parent("div.project_hd").siblings("div.project_update").show();
-	});
-	$("a.project_cancel").click(function(){
-		$(this).parents("div.project_update").hide();
-	});
+  $("#team_selector").change(function(){
+    $("#set_current_team").trigger("submit");
+  });
+  $("form.add_item_form").hide();
+  $(".add").click(function(){
+    $(this).siblings("form.add_item_form").slideDown(500);
+    $(this).slideUp(500);
+  });
+  $(".cancel").click(function(){
+    $(this).parents("form").slideUp(500);
+    $(this).parents("form").siblings(".add").slideDown(500);
+  });
+  $("div.burndown").hide();
+  $("a.sparkline").click(function(){
+    $(this).parents("div.sprint_header").children("div.burndown").slideToggle(500);
+  });
+  $("div.sprint_update").hide();
+  $("a.sprint_edit").click(function(){
+    $(this).parent("div.sprint_hd").siblings("div.sprint_update").show();
+  });
+  $("a.sprint_cancel").click(function(){
+    $(this).parents("div.sprint_update").hide();
+  });
+  $("div.project_update").hide();
+  $("a.project_edit").click(function(){
+    $(this).parent("div.project_hd").siblings("div.project_update").show();
+  });
+  $("a.project_cancel").click(function(){
+    $(this).parents("div.project_update").hide();
+  });
 });
 {% endblock %}
 
 {% block content %}
 <div class="project_hd">
-	<h1 style="display:inline;">{{ project.title }}</h1>{% if team_owner %}&nbsp;<a href="#" class="project_edit immutable_action">edit</a>{% endif %}
+  <h1 style="display:inline;">{{ project.title|escape }}</h1>{% if team_owner %}&nbsp;<a href="#" class="project_edit immutable_action">edit</a>{% endif %}
 </div>
 <div class="project_update">
-	<form action="/project/update" method="post">
-		<input type="text" class="text" name="title" value="{{ project.title }}" size=40 maxsize=40>
-		<input type="checkbox" name="complete" {% if project.complete %}checked{% endif %}>Complete&nbsp;
-		<input type="hidden" name="id" value="{{ project.key }}">
-		<input type="submit" value="Update"> or <a href="#" class="project_cancel immutable_action">Cancel</a>
-	</form>
+  <form action="/project/update" method="post">
+    <input type="text" class="text" name="title" value="{{ project.title|escape }}" size=40 maxsize=40>
+    <input type="checkbox" name="complete" {% if project.complete %}checked{% endif %}>Complete&nbsp;
+    <input type="hidden" name="id" value="{{ project.key }}">
+    <input type="submit" value="Update"> or <a href="#" class="project_cancel immutable_action">Cancel</a>
+  </form>
 </div>
-
 <hr>
 {% if project.complete %}
-	<div class="notice">This project has been marked complete and archived. The team owner can reopen it.</div>
+  <div class="notice">This project has been marked complete and archived. The team owner can reopen it.</div>
 {% endif %}
 {% if alert %}
-	<hr class="space">
-	<div class="{{ alert_type }}">{{ alert }}</div>
+  <hr class="space">
+  <div class="{{ alert_type|escape }}">{{ alert|escape }}</div>
 {% endif %}
 <div id="sprint_form_div">
-	<a href="#" class="add action">Add a new sprint</a>
-	<form class="add_item_form" id="sprint_form" action="/sprint/new" method="post">
-		<fieldset>
-		<label for="title">Enter a sprint title</label><br>
-		<input type="text" class="title required" name="title" id="title" value="" size=10 maxsize=10><span class="quiet small"> (ex: "Sprint 1")</span><br>
-		<label for="start_date">Start Date</label><br>
-		<input type="text" class="text required date" id="start_date" name="start_date" value="" size=10 maxsize=10><span class="quiet small"> (MM/DD/YYYY)</span><br>
-		<label for="end_date">End Date</label><br>
-		<input type="text" class="text required date" id="end_date" name="end_date" value="" size=10 maxsize=10><span class="quiet small"> (MM/DD/YYYY)</span><br>
-		<hr class="space">
-		<hr>
-		<input type="hidden" name="project_id" value="{{ project.key }}">
-		<input type="hidden" name="next" value="/project?id={{ project.key }}">
-		<input type="submit" value="Add this sprint"> or <a href="#" class="cancel action">Cancel</a>
-		</fieldset>
-	</form>
+  <a href="#" class="add action">Add a new sprint</a>
+  <form class="add_item_form" id="sprint_form" action="/sprint/new" method="post">
+    <fieldset>
+    <label for="title">Enter a sprint title</label><br>
+    <input type="text" class="title required" name="title" id="title" value="" size=10 maxsize=10><span class="quiet small"> (ex: "Sprint 1")</span><br>
+    <label for="start_date">Start Date</label><br>
+    <input type="text" class="text required date" id="start_date" name="start_date" value="" size=10 maxsize=10><span class="quiet small"> (MM/DD/YYYY)</span><br>
+    <label for="end_date">End Date</label><br>
+    <input type="text" class="text required date" id="end_date" name="end_date" value="" size=10 maxsize=10><span class="quiet small"> (MM/DD/YYYY)</span><br>
+    <hr class="space">
+    <hr>
+    <input type="hidden" name="project_id" value="{{ project.key }}">
+    <input type="hidden" name="next" value="/project?id={{ project.key }}">
+    <input type="submit" value="Add this sprint"> or <a href="#" class="cancel action">Cancel</a>
+    </fieldset>
+  </form>
 </div>
-	<hr class="space">
-	{% for sprint in project.sprints %}
+<hr class="space">
+{% for sprint in project.sprints %}
 <div class="sprint_header">
-	<div class="burndown"><img id="burndown{{ sprint.key }}" src="http://chart.apis.google.com/chart?cht=lc
-		&amp;chtt={{ sprint.title }} Burndown
+  <div class="burndown"><img id="burndown{{ sprint.key }}" src="http://chart.apis.google.com/chart?cht=lc
+		&amp;chtt={{ sprint.title|escape }} Burndown
 		&amp;chd=t:{{ sprint.chart_data }}
 		&amp;chds={{ sprint.chart_limits }}
 		&amp;chxt=x,y
@@ -94,84 +93,84 @@ $(document).ready(function(){
 		&amp;chs=400x200
 		&amp;chco=0077CC
 		&amp;chm=B,E6F2FA,0,0,0|o,000099,0,0.0,8.0|x,000099,0,{{ sprint.chart_total_data_points }}.0,8.0" />
-	</div>
-	<div class="sprint_hd"><h3 style="display:inline">{{ sprint.title }}</h3>
-		<span class="quiet">  {{ sprint.start_date|date:"F j, Y"}} to {{ sprint.end_date|date:"F j, Y"}}</span>&nbsp;
-		{% if sprint.complete %}<strong>Complete</strong>&nbsp;{% endif %}
-		{% if team_owner %}<a href="#" class="action sprint_edit">edit</a>{% endif %}
-		<a href="#" class="sparkline" title="Click to view burndown chart."><img src="http://chart.apis.google.com/chart?cht=ls
+  </div>
+  <div class="sprint_hd"><h3 style="display:inline">{{ sprint.title|escape }}</h3>
+    <span class="quiet">  {{ sprint.start_date|date:"F j, Y"}} to {{ sprint.end_date|date:"F j, Y"}}</span>&nbsp;
+    {% if sprint.complete %}<strong>Complete</strong>&nbsp;{% endif %}
+    {% if team_owner %}<a href="#" class="action sprint_edit">edit</a>{% endif %}
+    <a href="#" class="sparkline" title="Click to view burndown chart."><img src="http://chart.apis.google.com/chart?cht=ls
 			&amp;chd=t:{{ sprint.chart_data }}
 			&amp;chds={{ sprint.chart_limits }}
 			&amp;chs=60x20
 			&amp;chco=0077CC
 			&amp;chm=B,E6F2FA,0,0,0" /></a>
-	</div>
-	<div class="sprint_update">
-		<form action="/sprint/update" method="post">
-			<input type="text" class="text" name="title" value="{{ sprint.title }}" size=10 maxsize=10>
-			<input type="checkbox" name="complete" id="complete" {% if sprint.complete %}checked{% endif %}>Complete&nbsp;
-			<input type="hidden" name="id" value="{{ sprint.key }}">
-			<input type="submit" value="Update"> or <a href="#" class="sprint_cancel action">Cancel</a>
-		</form>
-	</div>
-	{% if sprint.complete %}<hr class="space">{% endif %}
+  </div>
+  <div class="sprint_update">
+    <form action="/sprint/update" method="post">
+      <input type="text" class="text" name="title" value="{{ sprint.title|escape }}" size=10 maxsize=10>
+      <input type="checkbox" name="complete" id="complete" {% if sprint.complete %}checked{% endif %}>Complete&nbsp;
+      <input type="hidden" name="id" value="{{ sprint.key }}">
+      <input type="submit" value="Update"> or <a href="#" class="sprint_cancel action">Cancel</a>
+    </form>
+  </div>
+  {% if sprint.complete %}<hr class="space">{% endif %}
 </div>
 {% if not sprint.complete or project.complete %}
 <table class="items last">
-	<tbody>
-	{% for item in sprint.items %}
-		<tr><td class="bullet">•</td>
-			<td class="title"><strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong>: {{ item.title }}</td>
-			<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
-			<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
-			<td class="action"><a href="/item?id={{ item.key }}&next=/project?id={{ project.key }}" class="action">edit</a></td>
-		</tr>
-	{% endfor %}
-		<tr><td class="bullet noborder">&nbsp;</td>
-			<td class="title noborder" style="text-align:right">Current Sprint Estimate:</td>
-			<td class="estimate noborder"><strong>{{ sprint.snap.estimate }} hours</strong></td>
-			<td class="date noborder">{{ sprint.snap.date|date:"M j"}}</td>
-			<td class="action noborder">&nbsp;</td>
-		</tr>
-	</tbody>
+  <tbody>
+  {% for item in sprint.items %}
+    <tr><td class="bullet">•</td>
+      <td class="title"><strong>{{ item.owner.first_name|escape }} {{ item.owner.last_name|escape }}</strong>: {{ item.title|escape }}</td>
+      <td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
+      <td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
+      <td class="action"><a href="/item?id={{ item.key }}&next=/project?id={{ project.key }}" class="action">edit</a></td>
+    </tr>
+  {% endfor %}
+    <tr><td class="bullet noborder">&nbsp;</td>
+      <td class="title noborder" style="text-align:right">Current Sprint Estimate:</td>
+      <td class="estimate noborder"><strong>{{ sprint.snap.estimate }} hours</strong></td>
+      <td class="date noborder">{{ sprint.snap.date|date:"M j"}}</td>
+      <td class="action noborder">&nbsp;</td>
+    </tr>
+  </tbody>
 </table>
 <div>
-	<a href="#" class="add action">Add a new task</a>
-	<form action="/item/new" method="post" accept-charset="utf-8" class="add_item_form item_form">
-		<fieldset>
-			<label for="itemtitle">Enter a sprint backlog task</label><br>
-					<textarea class="required" name="title" id="itemtitle" style="width:600px"></textarea><br>
-			<label for="owner">Owner</label><br>
-			<select name="owner" id="owner">
-			{% for user in users %}
-				<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
-			{% endfor %}
-			</select><br>
-			<label for="estimate">Estimate of effort</label><br>
-			<input type="text" class="text required" name="estimate" id="estimate" value="0" size="3" maxlength=3> hours<br>
-			<hr class="space">
-			<hr>
-			<input type="hidden" name="sprint_id" value="{{ sprint.key }}">
-			<input type="hidden" name="next" value="/project?id={{ project.key }}">
-			<input type="submit" value="Add this task"> or <a href="#" class="cancel action">I'm done adding tasks</a>
-		</fieldset>
-	</form>
+  <a href="#" class="add action">Add a new task</a>
+  <form action="/item/new" method="post" accept-charset="utf-8" class="add_item_form item_form">
+    <fieldset>
+      <label for="itemtitle">Enter a sprint backlog task</label><br>
+          <textarea class="required" name="title" id="itemtitle" style="width:600px"></textarea><br>
+      <label for="owner">Owner</label><br>
+      <select name="owner" id="owner">
+      {% for user in users %}
+        <option value="{{ user.key }}">{{ user.first_name|escape }} {{ user.last_name|escape }}</option>
+      {% endfor %}
+      </select><br>
+      <label for="estimate">Estimate of effort</label><br>
+      <input type="text" class="text required" name="estimate" id="estimate" value="0" size="3" maxlength=3> hours<br>
+      <hr class="space">
+      <hr>
+      <input type="hidden" name="sprint_id" value="{{ sprint.key }}">
+      <input type="hidden" name="next" value="/project?id={{ project.key }}">
+      <input type="submit" value="Add this task"> or <a href="#" class="cancel action">I'm done adding tasks</a>
+    </fieldset>
+  </form>
 </div>
 <hr class="space">
-<h4 class="quiet" style="display:inline">{{ sprint.title }} Product Backlog</h4>
+<h4 class="quiet" style="display:inline">{{ sprint.title|escape }} Product Backlog</h4>
 {% if not sprint.backlog_items %}
 <p>There are no product backlog items assigned to this sprint. You can assign product backlog items to this sprint from a product backlog page.</p>
 {% else %}
 <table class="items last">
 <tbody>
-	{% for item in sprint.backlog_items %}
-		<tr><td class="bullet">•</td>
-			<td class="title"><strong>{{ item.owner.first_name }} {{ item.owner.last_name }}</strong>: {{ item.title }}</td>
-			<td class="estimate"><strong>{{ item.estimate }} ideal days</strong></td>
-			<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
-			<td class="action">&nbsp;</td>
-		</tr>
-	{% endfor %}
+  {% for item in sprint.backlog_items %}
+    <tr><td class="bullet">•</td>
+      <td class="title">{{ item.title|escape }}</td>
+      <td class="estimate"><strong>{{ item.estimate }} ideal days</strong></td>
+      <td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
+      <td class="action">&nbsp;</td>
+    </tr>
+  {% endfor %}
 </tbody>
 </table>
 <hr class="space">

@@ -18,40 +18,40 @@
 
 </head>
 <body>
-	<div class="container">
-		<div class="span-24 last" id="hd">
-			<div class="span-4">
-				<h1 id="logo">Sprint</h1>
-				<hr class="space">
-			</div>
-			<div class="span-20 last" id="top_nav">
-				{% block header %}
-				Current Team:
-					<form style="display:inline" action="/team/set-current" method="post" id="set_current_team">
-						<select name="team" id="team_selector">
-							{% for team_member in teams %}
-							<option value="{{ team_member.team.key }}"{% ifequal user.current_team.key team_member.team.key %}selected="selected"{% endifequal %}>
-								{{ team_member.team.title }}: 
-								{{ team_member.owner_app_user.first_name }} {{ team_member.owner_app_user.last_name }}</option>
-							{% endfor %}
-						</select>
-					</form>
-					| <a href="/">Dashboard</a>
-					| <a href="/user">My Account</a>
-					| <a href="/help">Help</a> 
-					| <a href="{{ logout_url }}">Logout</a>
-				{% endblock %}
-			</div>
-			<hr>
-		</div>
-		{% block content %}{% endblock %}
-		<div class="span-24 last" id="ft">
-			<hr class="space">
-			<hr>
-			{% block footer %}
-			Created by <a href="http://toddwebb.wordpress.com">Todd Webb</a> | <a href="http://groups.google.com/group/sprinthq">Provide Feedback</a>
-			{% endblock %}
-		</div>
-	</div>
+  <div class="container">
+    <div class="span-24 last" id="hd">
+      <div class="span-4">
+        <h1 id="logo">Sprint</h1>
+        <hr class="space">
+      </div>
+      <div class="span-20 last" id="top_nav">
+        {% block header %}
+        Current Team:
+          <form style="display:inline" action="/team/set-current" method="post" id="set_current_team">
+            <select name="team" id="team_selector">
+              {% for team_member in teams %}
+              <option value="{{ team_member.team.key }}"{% ifequal user.current_team.key team_member.team.key %}selected="selected"{% endifequal %}>
+                {{ team_member.team.title|escape }}: 
+                {{ team_member.owner_app_user.first_name|escape }} {{ team_member.owner_app_user.last_name|escape }}</option>
+              {% endfor %}
+            </select>
+          </form>
+          | <a href="/">Dashboard</a>
+          | <a href="/user">My Account</a>
+          | <a href="/help">Help</a> 
+          | <a href="{{ logout_url }}">Logout</a>
+        {% endblock %}
+      </div>
+      <hr>
+    </div>
+    {% block content %}{% endblock %}
+    <div class="span-24 last" id="ft">
+      <hr class="space">
+      <hr>
+      {% block footer %}
+      Created by <a href="http://toddwebb.wordpress.com">Todd Webb</a> | <a href="http://groups.google.com/group/sprinthq">Provide Feedback</a>
+      {% endblock %}
+    </div>
+  </div>
 </body>
 </html>

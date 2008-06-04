@@ -23,7 +23,7 @@ $(document).ready(function(){
 {% block content %}
   {% if alert %}
   <hr class="space">
-  <div class="{{ alert_type }}">{{ alert }}</div>
+  <div class="{{ alert_type|escape }}">{{ alert|escape }}</div>
   {% endif %}
   <h2>Edit {% if user.first_name %} {{ user.first_name|escape }} {{ user.last_name|escape }} {% else %} {{ user.email|escape }} {% endif %}</h2>
   <form action="/user/update?id={{ user.key }}" method="post" id="userform" accept-charset="utf-8">

@@ -4,126 +4,126 @@
 
 {% block script %}
 $(document).ready(function(){
-	$.validator.setDefaults({errorClass: "invalid"})
-	$("#add_project_form").validate();
-	$("#add_backlog_form").validate();
-	$('#team_selector').change(function(){
-		$('#set_current_team').trigger('submit');
-	});
-	$('#add_project_form').hide();
-	$('#add_backlog_form').hide();
-	$('#new_project').click(function(){
-		$('#add_project_form').slideDown(500);
-		$(this).slideUp(500);
-	});
-	$('#cancel_add_project').click(function(){
-		$('#add_project_form').slideUp(500);
-		$('#new_project').slideDown(500);
-	});
-	$('#new_backlog').click(function(){
-		$('#add_backlog_form').slideDown(500);
-		$(this).slideUp(500);
-	});
-	$('#cancel_add_backlog').click(function(){
-		$('#add_backlog_form').slideUp(500);
-		$('#new_backlog').slideDown(500);
-	});
+  $.validator.setDefaults({errorClass: "invalid"})
+  $("#add_project_form").validate();
+  $("#add_backlog_form").validate();
+  $('#team_selector').change(function(){
+    $('#set_current_team').trigger('submit');
+  });
+  $('#add_project_form').hide();
+  $('#add_backlog_form').hide();
+  $('#new_project').click(function(){
+    $('#add_project_form').slideDown(500);
+    $(this).slideUp(500);
+  });
+  $('#cancel_add_project').click(function(){
+    $('#add_project_form').slideUp(500);
+    $('#new_project').slideDown(500);
+  });
+  $('#new_backlog').click(function(){
+    $('#add_backlog_form').slideDown(500);
+    $(this).slideUp(500);
+  });
+  $('#cancel_add_backlog').click(function(){
+    $('#add_backlog_form').slideUp(500);
+    $('#new_backlog').slideDown(500);
+  });
 });
 {% endblock %}
 
 {% block content %}
 <div class="span-18" id="main">
-	<h1>Open Items for {{ user.first_name }} {{ user.last_name }}</h1>
-	<hr>
-	{% if alert %}
-		<hr class="space">
-		<div class="{{ alert_type }}">{{ alert }}</div>
-	{% endif %}
-	<form action="/project/new" method="post" id="add_project_form">
-		<legend><span class="large">Add a new project</span></legend>
-		<fieldset>
-		<label for="title">Enter a project title</label><br> 
-		<input type="text" class="text required" name="title" id="title" size=40 maxsize=40><br>
-		<hr class="space">
-		<hr>
-		<input type="submit" value="Create a New Project"> or <a href="#" class="action" id="cancel_add_project">Cancel</a>
-		</fieldset>
-	</form>
-	<form action="/backlog/new" method="post" id="add_backlog_form">
-		<legend><span class="large">Add a new backlog</span></legend>
-		<fieldset>
-		<label for="title">Enter a backlog title</label><br>
-		<input type="text required"  class="text required" name="title" id="title" size=40 maxsize=40><br>
-		<label for="owner">Select the backlog owner</label><br>
-		<select name="owner" id="owner">
-			{% for user in users %}
-				<option value="{{ user.key }}">{{ user.first_name }} {{ user.last_name }}</option>
-			{% endfor %}
-		</select><br>
-		<hr class="space">
-		<hr>
-		<input type="submit" value="Create a New Backlog"> or <a href="#" class="action" id="cancel_add_backlog">Cancel</a>
-		</fieldset>
-	</form>
-	<div id="user_list">
-	{% if not user_projects %} 
-		<p>You have not been assigned any items.</p>
-	{% else %}
-		{% for project in user_projects %}
-		<h2>{{ project.title }}</h2>
-			{% for sprint in project.sprints %}
-				{% if not sprint.complete %}
-				<p><h3 style="display:inline">{{ sprint.title }}</h3>
-					<span class="quiet">  {{ sprint.start_date|date:"F j, Y"}} to {{ sprint.end_date|date:"F j, Y"}}</span></p>
-				<table class="items last">
-				<tbody>
-				{% for item in sprint.items %}
-					<tr><td class="bullet">•</td>
-						<td class="title">{{ item.title }}</td>
-						<td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
-						<td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
-						<td class="action"><a href="/item?id={{ item.key }}&next=/" class="action">edit</a></td>
-					</tr>
-				{% endfor %}
-				</tbody>
-				</table>
-				{% endif %}
-			{% endfor %}
-		{% endfor %}
-	{% endif %}
-	</div>
+  <h1>Open Items for {{ user.first_name|escape }} {{ user.last_name|escape }}</h1>
+  <hr>
+  {% if alert %}
+    <hr class="space">
+    <div class="{{ alert_type|escape }}">{{ alert|escape }}</div>
+  {% endif %}
+  <form action="/project/new" method="post" id="add_project_form">
+    <legend><span class="large">Add a new project</span></legend>
+    <fieldset>
+    <label for="title">Enter a project title</label><br> 
+    <input type="text" class="text required" name="title" id="title" size=40 maxsize=40><br>
+    <hr class="space">
+    <hr>
+    <input type="submit" value="Create a New Project"> or <a href="#" class="action" id="cancel_add_project">Cancel</a>
+    </fieldset>
+  </form>
+  <form action="/backlog/new" method="post" id="add_backlog_form">
+    <legend><span class="large">Add a new backlog</span></legend>
+    <fieldset>
+    <label for="title">Enter a backlog title</label><br>
+    <input type="text required"  class="text required" name="title" id="title" size=40 maxsize=40><br>
+    <label for="owner">Select the backlog owner</label><br>
+    <select name="owner" id="owner">
+      {% for user in users %}
+        <option value="{{ user.key }}">{{ user.first_name|escape }} {{ user.last_name|escape }}</option>
+      {% endfor %}
+    </select><br>
+    <hr class="space">
+    <hr>
+    <input type="submit" value="Create a New Backlog"> or <a href="#" class="action" id="cancel_add_backlog">Cancel</a>
+    </fieldset>
+  </form>
+  <div id="user_list">
+  {% if not user_projects %} 
+    <p>You have not been assigned any items.</p>
+  {% else %}
+    {% for project in user_projects %}
+    <h2>{{ project.title|escape }}</h2>
+      {% for sprint in project.sprints %}
+        {% if not sprint.complete %}
+        <p><h3 style="display:inline">{{ sprint.title|escape }}</h3>
+          <span class="quiet">  {{ sprint.start_date|date:"F j, Y"}} to {{ sprint.end_date|date:"F j, Y"}}</span></p>
+        <table class="items last">
+        <tbody>
+        {% for item in sprint.items %}
+          <tr><td class="bullet">•</td>
+            <td class="title">{{ item.title|escape }}</td>
+            <td class="estimate"><strong>{{ item.estimate }} hours</strong></td>
+            <td class="date">{{ item.last_estimate_date|date:"M j"}}</td>
+            <td class="action"><a href="/item?id={{ item.key }}&next=/" class="action">edit</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  {% endif %}
+  </div>
 </div>
 <div class="span-6 last" id="nav">
-	<h1>&nbsp;</h1>
-	<hr>
-	<h2 class="bottom">Projects</h2>
-	{% for project in projects %}
-		{% if not project.complete %}
-		<div><a href="/project?id={{ project.key }}" title="{{ project.title }}" class="large nav_list">{{ project.title|truncate_dot:30 }}</a></div>
-		{% endif %}
-	{% endfor %}
-	<p><a href="#" class="action" id="new_project">Add a new project</a></p>
-	<h2 class="bottom">Backlogs</h2>
-	{% for backlog in backlogs %}
-		<div><a href="/backlog?id={{ backlog.key }}" title="{{ backlog.title }}" class="large nav_list">{{ backlog.title|truncate_dot:20 }}</a> 
-			: {{ backlog.owner.first_name }} {{ backlog.owner.last_name }}</div>
-	{% endfor %}
-	<p><a href="#" class="action" id="new_backlog">Add a new backlog</a></p>
-	<hr>
-	<h4 class="quiet">Project Archive</h4>
-	{% for project in projects %}
-		{% if project.complete %}
-		<div><a href="/project?id={{ project.key }}" title="{{ project.title }}" class="nav_list">{{ project.title|truncate_dot:40 }}</a></div>
-		{% endif %}
-	{% endfor %}
-	<hr class="space">
-	<h4 class="quiet">Backlog Archive</h4>
-	{% for backlog in backlogs %}
-		{% if backlog.complete %}
-		<div><a href="/backlog?id={{ backlog.key }}" title="{{ backlog.title }}" class="nav_list">{{ backlog.title|truncate_dot:40 }}</a></div>
-		{% endif %}
-	{% endfor %}
-	<hr class="space">
-	
+  <h1>&nbsp;</h1>
+  <hr>
+  <h2 class="bottom">Projects</h2>
+  {% for project in projects %}
+    {% if not project.complete %}
+    <div><a href="/project?id={{ project.key }}" title="{{ project.title|escape }}" class="large nav_list">{{ project.title|truncate_dot:30 }}</a></div>
+    {% endif %}
+  {% endfor %}
+  <p><a href="#" class="action" id="new_project">Add a new project</a></p>
+  <h2 class="bottom">Backlogs</h2>
+  {% for backlog in backlogs %}
+    <div><a href="/backlog?id={{ backlog.key }}" title="{{ backlog.title|escape }}" class="large nav_list">{{ backlog.title|truncate_dot:20 }}</a> 
+      : {{ backlog.owner.first_name|escape }} {{ backlog.owner.last_name|escape }}</div>
+  {% endfor %}
+  <p><a href="#" class="action" id="new_backlog">Add a new backlog</a></p>
+  <hr>
+  <h4 class="quiet">Project Archive</h4>
+  {% for project in projects %}
+    {% if project.complete %}
+    <div><a href="/project?id={{ project.key }}" title="{{ project.title|escape }}" class="nav_list">{{ project.title|truncate_dot:40 }}</a></div>
+    {% endif %}
+  {% endfor %}
+  <hr class="space">
+  <h4 class="quiet">Backlog Archive</h4>
+  {% for backlog in backlogs %}
+    {% if backlog.complete %}
+    <div><a href="/backlog?id={{ backlog.key }}" title="{{ backlog.title|escape }}" class="nav_list">{{ backlog.title|truncate_dot:40 }}</a></div>
+    {% endif %}
+  {% endfor %}
+  <hr class="space">
+  
 </div>
 {% endblock %}
