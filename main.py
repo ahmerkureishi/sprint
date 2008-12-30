@@ -316,6 +316,22 @@ class CreateBacklogAction(BaseRequestHandler):
     
     self.redirect('/')
 
+class DeleteSprintAction(BaseRequestHandler):
+  def post(self):
+    sprint_key = self.request.get('id')
+    sprint = Sprint.get(sprint_key)
+    project_key = sprint.project.key()
+
+    # delete all the items first
+    item_query = db.GqlQuery("SELECT * FROM Item WHERE sprint = :1 AND backlog = :2 ORDER BY title", sprint, None)
+    for item in item_query:
+      item.delete()
+
+    # then delete sprint
+    sprint.remove()
+    
+    self.redirect('/project?id=' + str(project_key))
+
 
 class DeleteItemAction(BaseRequestHandler):
   def post(self):
@@ -542,6 +558,12 @@ class Sprint(db.Model):
       snap = SprintSnap(sprint=self, estimate=todays_estimate)
       snap.put()
 
+  def remove(self):
+    snap_query = SprintSnap.gql("WHERE sprint = :1", self)
+    for snap in snap_query:
+      snap.delete()
+    
+    self.delete()
 
 class SprintSnap(db.Model):
   sprint = db.ReferenceProperty(Sprint)
@@ -583,6 +605,7 @@ def main():
   apps_binding.append(('/help', HelpPage))
   apps_binding.append(('/team/set-current', SetCurrentTeamAction))
   apps_binding.append(('/team/add-member', AddMemberAction))
+  apps_binding.append(('/sprint/delete', DeleteSprintAction))
   apps_binding.append(('/item/delete', DeleteItemAction))
   apps_binding.append(('/sprint/update', EditSprintAction))
   apps_binding.append(('/project/update', EditProjectAction))
