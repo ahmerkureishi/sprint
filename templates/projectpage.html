@@ -39,6 +39,10 @@ $(document).ready(function(){
   $("a.project_cancel").click(function(){
     $(this).parents("div.project_update").hide();
   });
+  $("#delete_s").click(function(){
+    $("#delete_sprint").trigger("submit")
+  });
+  
 });
 {% endblock %}
 
@@ -112,6 +116,10 @@ $(document).ready(function(){
       <input type="hidden" name="id" value="{{ sprint.key }}">
       <input type="submit" value="Update"> or <a href="#" class="sprint_cancel action">Cancel</a>
     </form>
+    <form action="/sprint/delete" method="post" accept-charset="utf-8" id="delete_sprint">
+      <input type="hidden" name="id" value="{{ sprint.key }}" id="id">
+    </form>
+    <a href="#" class="action" id="delete_s">Delete this sprint</a>
   </div>
   {% if sprint.complete %}<hr class="space">{% endif %}
 </div>
