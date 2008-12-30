@@ -397,6 +397,16 @@ class EditSprintAction(BaseRequestHandler):
     sprint.put()
     self.redirect('/project?id=' + str(sprint.project.key()))
 
+class EditBacklogAction(BaseRequestHandler):
+  def post(self):
+    backlog_key = self.request.get('id')
+    backlog = Backlog.get(backlog_key)
+    backlog.title = self.request.get('title')
+
+    backlog.put()
+    
+    self.redirect('/backlog?id=' + str(backlog_key))
+
 
 class EditItemAction(BaseRequestHandler):
   def post(self):
@@ -600,6 +610,7 @@ def main():
   apps_binding.append(('/project/new', CreateProjectAction))
   apps_binding.append(('/sprint/new', CreateSprintAction))
   apps_binding.append(('/backlog/new', CreateBacklogAction))
+  apps_binding.append(('/backlog/update', EditBacklogAction))
   apps_binding.append(('/item/new', EditItemAction))
   apps_binding.append(('/item/update', EditItemAction))
   apps_binding.append(('/help', HelpPage))

@@ -27,12 +27,27 @@ $(document).ready(function(){
     $('#add_item_form').slideUp(500);
     $('#add').slideDown(500);
   });
-});
+  $("div.backlog_update").hide()
+  $("a.backlog_edit").click(function(){
+    $(this).parent("div.backlog_hd").siblings("div.backlog_update").show();
+  })
+  $("a.backlog_cancel").click(function(){
+    $(this).parents("div.backlog_update").hide();
+  });});
 
 {% endblock %}
 
 {% block content %}
-<h1 style="display:inline">{{ backlog.title|escape }}</h1> <span class="quiet large">{{ backlog.owner.first_name|escape }} {{ backlog.owner.last_name|escape }}</span>
+<div class="backlog_hd">
+  <h1 style="display:inline">{{ backlog.title|escape }}</h1> <span class="quiet large">{{ backlog.owner.first_name|escape }} {{ backlog.owner.last_name|escape }}</span> <a href="#" class="backlog_edit immutable_action">edit</a>
+</div>
+<div class="backlog_update">
+  <form action="/backlog/update" method="post">
+    <input type="text" class="text" name="title" value="{{ backlog.title|escape }}" size=40 maxsize=40>
+    <input type="hidden" name="id" value="{{ backlog.key }}">
+    <input type="submit" value="Update"> or <a href="#" class="backlog_cancel immutable_action">Cancel</a>
+  </form>
+</div>
 <hr class="space">
 <table class="items last">
 <tbody>
