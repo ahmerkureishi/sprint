@@ -39,12 +39,19 @@ $(document).ready(function(){
 
 {% block content %}
 <div class="backlog_hd">
-  <h1 style="display:inline">{{ backlog.title|escape }}</h1> <span class="quiet large">{{ backlog.owner.first_name|escape }} {{ backlog.owner.last_name|escape }}</span> <a href="#" class="backlog_edit immutable_action">edit</a>
+  <h1 style="display:inline">{{ backlog.title|escape }}</h1> <span class="quiet large">{{ backlog.owner.first_name|escape }} {{ backlog.owner.last_name|escape }}</span> {% if team_owner or backlog_owner %}<a href="#" class="backlog_edit immutable_action">edit</a> {% endif %}
 </div>
 <div class="backlog_update">
   <form action="/backlog/update" method="post">
-    <input type="text" class="text" name="title" value="{{ backlog.title|escape }}" size=40 maxsize=40>
-    <input type="hidden" name="id" value="{{ backlog.key }}">
+    <input type="hidden" name="id" value="{{ backlog.key }}">      
+    <label for="title">Backlog Title</label><br>
+    <input id="title" type="text required" class="text required" name="title" value="{{ backlog.title|escape }}" size=40 maxsize=40><br>
+    <label for="owner">Backlog Owner</label><br>
+    <select name="owner" id="owner">
+      {% for user in users %}
+        <option {% ifequal user.key backlog.owner.key %}selected="selected"{% endifequal %} value="{{ user.key }}">{{ user.first_name|escape }} {{ user.last_name|escape }}</option>
+      {% endfor %}
+    </select><br>
     <input type="submit" value="Update"> or <a href="#" class="backlog_cancel immutable_action">Cancel</a>
   </form>
 </div>

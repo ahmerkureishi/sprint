@@ -211,7 +211,17 @@ class BacklogPage(BaseRequestHandler):
       result = [sprint for sprint in sprint_query]
       sprints.extend(result)
 
+    app_user = AppUser.getCurrentUser()
+    if app_user.current_team.current_user_is_owner():
+      team_owner = True
+    else:
+      team_owner = False
+
+    backlog_owner = backlog.current_user_is_owner()
+
     self.generate('backlogpage.html', {
+      'team_owner': team_owner,
+      'backlog_owner' : backlog_owner,
       'backlog': backlog, 
       'items': items, 
       'users': AppUser.getCurrentUser().current_team.get_all_members(),
@@ -402,6 +412,7 @@ class EditBacklogAction(BaseRequestHandler):
     backlog_key = self.request.get('id')
     backlog = Backlog.get(backlog_key)
     backlog.title = self.request.get('title')
+    backlog.owner = AppUser.get(self.request.get('owner'))
 
     backlog.put()
     
@@ -587,6 +598,8 @@ class Backlog(db.Model):
   team = db.ReferenceProperty(Team, required=True)
   complete = db.BooleanProperty(default=False)
 
+  def current_user_is_owner(self):
+    return (self.owner.key() == AppUser.getCurrentUser().key())
 
 class Item(db.Model):
   title = db.StringProperty(required=True)
