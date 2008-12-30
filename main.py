@@ -328,7 +328,7 @@ class DeleteSprintAction(BaseRequestHandler):
       item.delete()
 
     # then delete sprint
-    sprint.remove()
+    sprint.delete()
     
     self.redirect('/project?id=' + str(project_key))
 
@@ -558,12 +558,12 @@ class Sprint(db.Model):
       snap = SprintSnap(sprint=self, estimate=todays_estimate)
       snap.put()
 
-  def remove(self):
+  def delete(self):
     snap_query = SprintSnap.gql("WHERE sprint = :1", self)
     for snap in snap_query:
       snap.delete()
     
-    self.delete()
+    db.Model.delete(self)
 
 class SprintSnap(db.Model):
   sprint = db.ReferenceProperty(Sprint)
